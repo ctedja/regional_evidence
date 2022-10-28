@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence App</title>
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+    <!-- For Bootstrap Select -->
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+
+    <!--Range Slider -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
+
+    <!-- Icons -->
+    <script src="https://kit.fontawesome.com/f3135b3376.js" crossorigin="anonymous"></script>
+
+    <!-- Moment JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <!-- Custom CSS file -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <!-- ChartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+
+
+<body>
+    <!-- <div class="title">
+        <h1>Regional Evidence</h1>
+    </div> -->
+
+    <div class="filters">
+        <div class="title">
+            <span><img src="{{ url_for('static', filename='images/wfpLogo.png') }}" style="height:25px;" />
+                &nbsp;All Regional Products
+                <br>
+                <hr><br>
+            </span>
+        </div>
+
+        <form class="form">
+            <div>
+                <input type="text" id="searchInput" class="form-control" placeholder="&#xf002;&nbsp;&nbsp;Search">
+            </div>
+            <br>
+            <div class="select">
+                <select id="countrySelector" class="form-select selectpicker" data-width="100%" data-size="8"
+                    name="country" data-dropdown>
+                    <option value="">&#xf3c5;&nbsp;&nbsp;Country (All)</option>
+                    <option id="afg" value="Afghanistan">&nbsp;&nbsp;Afghanistan</option>
+                    <option value="Bangladesh">&nbsp;&nbsp;Bangladesh</option>
+                    <option value="Bhutan">&nbsp;&nbsp;Bhutan</option>
+                    <option value="Bhutan">&nbsp;&nbsp;Bhutan</option>
+                    <option value="Cambodia">&nbsp;&nbsp;Cambodia</option>
+                    <option value="DPRK">&nbsp;&nbsp;DPRK</option>
+                    <option value="India">&nbsp;&nbsp;India</option>
+                    <option value="Indonesia">&nbsp;&nbsp;Indonesia</option>
+                    <option value="Kyrgyz Republic">&nbsp;&nbsp;Kyrgyz Republic</option>
+                    <option value="Laos">&nbsp;&nbsp;Laos</option>
+                    <option value="Myanmar">&nbsp;&nbsp;Myanmar</option>
+                    <option value="Nepal">&nbsp;&nbsp;Nepal</option>
+                    <option value="Pacific">&nbsp;&nbsp;Pacific</option>
+                    <option value="Pakistan">&nbsp;&nbsp;Pakistan</option>
+                    <option value="Philippines">&nbsp;&nbsp;Philippines</option>
+                    <option value="Sri Lanka">&nbsp;&nbsp;Sri Lanka</option>
+                    <option value="Tajikistan">&nbsp;&nbsp;Tajikistan</option>
+                    <option value="Timor-Leste">&nbsp;&nbsp;Timor-Leste</option>
+                </select>
+            </div>
+            <br>
+            <div class="select">
+                <select id="categorySelector" class="form-select selectpicker" data-width="100%" data-size="8"
+                    name="country" data-dropdown>
+                    <option value="">&#xf550;&nbsp;&nbsp;Category (All)</option>
+                    <option value="Situation Report">&nbsp;&nbsp;Situation Report</option>
+                    <option value="Market/Price Monitoring">&nbsp;&nbsp;Market/Price Monitoring</option>
+                    <option value="Analysis/Research">&nbsp;&nbsp;Analysis/Research</option>
+                </select>
+            </div>
+            <br>
+            <div id="rangeDropdown" class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    &#xf133;&nbsp;&nbsp;Date
+                </button>
+                <ul id="myRangeSlider" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <p class="js-input-from" id="min" name="min" value="0">
+                    <p style="width:100%;"><input type="text" class="js-range-slider" value="">
+                    <p class="js-input-to" id="max" name="max" value="0">
+                </ul>
+            </div>
+        </form>
+        <br>
+        <br>
+        <hr>
+        <br>
+
+        <div>
+            <canvas id="myChart" style="width:100%;height:250px"></canvas>
+        </div>
+    </div>
+
+    <div class="main">
+        <table class="table mydatatable" id="mydatatable">
+            <thead>
+                <tr>
+                    <th> </th>
+                    <th> </th>
+                    <th> </th>
+                    <th> </th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+            </tbody>
+        </table>
+    </div>
+
+
+    <script>
+        async function populate() {
+
+            // Build Table
+            function buildTable(data) {
+                var table = document.getElementById('myTable')
+                table.innerHTML = data.map(function (row) {
+                    let [country, title, category, date, link, image] = row;
+                    date = moment(date).format('dddd, D MMMM YYYY');
+
+                    return `<tr>
+                        <td>
+                            <br><br>
+                            <a href="${link}" target='_blank'>
+                            <img class="tableThumbnail" src=${image}><br><br>
+                        </td></a>
+                        <td>
+                            <span class="tableTitle"><br><br><a href="${link}" target='_blank'>${title}</a><br></span>
+                            <span class="tableCountry"><span>&nbsp;&nbsp;${country}&nbsp;&nbsp;</span></span>&nbsp;&nbsp;
+                            <span class="tableCategory">&nbsp;&nbsp;${category}&nbsp;&nbsp;</span>
+                            <span class="tableDate"><span><br>&nbsp;&nbsp;<i class="far fa-calendar"></i>&nbsp;&nbsp;${date}</span></span>
+                        </td>
+                        <td>${country}</td>
+                        <td>${category}</td>
+                        <td>${date}</td>
+                    </tr>`;
+                }).join('');
+            }
+
+            const currentDate = new Date();
+
+            // Pull in our data
+            var evidenceData = JSON.parse('{{ evidence_dataset|tojson }}');
+
+            const countrySelector = document.getElementById('countrySelector')
+
+
+            // console.log(evidenceData)
+
+
+
+            /* Custom filtering function which will search data in column four between two values */
+            $.fn.dataTable.ext.search.push(
+                function (settings, data, dataIndex) {
+                    var min = moment($('#min').val());
+                    var max = moment($('#max').val());
+                    var dateFilter = moment(data[4]) || 0; // use data for the age column
+
+                    if ((isNaN(min) && isNaN(max)) ||
+                        (isNaN(min) && dateFilter <= max) ||
+                        (min <= dateFilter && isNaN(max)) ||
+                        (min <= dateFilter && dateFilter <= max)) {
+                        return true;
+                    }
+                    return false;
+                }
+            );
+
+
+            // Pull in the Data Tables via jQuery
+            $(document).ready(function () {
+                var oTable = $('.mydatatable').DataTable({
+                    "dom": "<<t>ip>",
+                    // We need those columns to be searchable, but not visible
+                    "columnDefs": [{
+                        targets: [2, 3, 4],
+                        visible: false,
+                        searchable: true,
+                    }]
+                });
+                // Add the search filter to the side
+                $('#searchInput').keyup(function () {
+                    oTable.search($(this).val()).draw();
+                });
+                // Country Selector
+                $('select#countrySelector').change(function () {
+                    oTable.columns(2).search($(this).val()).draw();
+                });
+                $('select#categorySelector').change(function () {
+                    oTable.columns(3).search($(this).val()).draw();
+                });
+                // Min/Max
+                $('#max').keyup(function () {
+                    oTable.columns(4).draw();
+                });
+                $('#min').keyup(function () {
+                    oTable.columns(4).draw();
+                });
+                // var testerDate = $('.tester')
+                // $.each(evidenceData, function (index, item) {
+                //     testerDate.append('Date : ' + item['Date']);
+                // });
+            })
+
+            buildTable(evidenceData)
+
+
+            // Getting Range Slider Elements
+            var $range = $(".js-range-slider"),
+                $inputFrom = $(".js-input-from"),
+                $inputTo = $(".js-input-to"),
+                instance,
+                min = moment("2022-03-01"),
+                max = moment("2022-06-07"),
+                from = moment("2022-03-01"),
+                to = moment("2022-06-07");
+
+            $range.ionRangeSlider({
+                type: "double",
+                min: min,
+                max: max,
+                onStart: updateInputs,
+                onChange: updateInputs,
+                onFinish: updateInputs,
+                prettify: function (num) {
+                    return moment(num).format('DD MMM YY');
+                }
+            });
+            instance = $range.data("ionRangeSlider");
+
+            function updateInputs(data) {
+                from = data.from;
+                to = data.to;
+                $inputFrom.prop("value", from);
+                $inputTo.prop("value", to);
+
+                // Force keyup event to run min max event handler
+                $('#min').trigger('keyup');
+            }
+
+            $inputFrom.on("input", function () {
+                var val = $(this).prop("value");
+                // validate
+                if (val < min) {
+                    val = min;
+                } else if (val > to) {
+                    val = to;
+                }
+                instance.update({
+                    from: val
+                });
+            });
+
+            $inputTo.on("input", function () {
+                var val = $(this).prop("value");
+                // validate
+                if (val < from) {
+                    val = from;
+                } else if (val > max) {
+                    val = max;
+                }
+                instance.update({
+                    to: val
+                });
+            });
+
+
+
+
+            // Create our Chart
+            function createChart(chartData, searchedName = "", animationTrigger = true) {
+
+                // Remove first
+                let chartStatus = Chart.getChart("myChart");
+                if (chartStatus != undefined) {
+                    chartStatus.destroy();
+                }
+
+                var countryCount = chartData.map(function (d) { return d[0]; });
+                var monthCount = chartData.map(function (d) {
+                    var date = moment(d[3]).startOf('month').format('MMM YY').toString();
+                    return date;
+                });
+
+                // Count number for each unique value
+                function searchFunction(searchCriteria) {
+                    var count = chartData.filter(function (item) {
+                        if (moment(item[3]).startOf('month').format('MMM YY').toString() === searchCriteria) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }).length;
+                    return count;
+                }
+
+                var uniqueMonth = [... new Set(monthCount)]
+                var values = uniqueMonth.map(searchFunction)
+
+
+
+
+                // Building the Chart
+                const data = {
+                    labels: uniqueMonth,
+                    datasets: [{
+                        backgroundColor: '#cce5f2',
+                        borderColor: '#cce5f2',
+                        data: values,
+                    }]
+                };
+
+                const config = {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        animation: animationTrigger,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Number of unique products ' + searchedName,
+                                align: 'start',
+                                padding: {
+                                    top: 10,
+                                    bottom: 30
+                                }
+                            }
+                        }
+                    }
+                };
+
+                const myChart = new Chart(
+                    document.getElementById('myChart'),
+                    config
+                );
+
+
+            }
+
+
+            createChart(evidenceData)
+
+            // Make the country selector
+            $('select#countrySelector').on('change', function (e) {
+                var minDate = moment($('#min').val()).format('YY MM DD');
+                var maxDate = moment($('#max').val()).format('YY MM DD');
+
+                const match = evidenceData.filter(countryArr => countryArr[0] === this.value &&
+                    (moment(countryArr[3]).format('YY MM DD') <= maxDate || isNaN(countryArr[3])) &&
+                    (moment(countryArr[3]).format('YY MM DD') >= minDate || isNaN(countryArr[3])));
+                const matchName = this.value
+
+                if (match.length == 0) {
+                    createChart(evidenceData, " ")
+                } else if (match.length != 0 && maxDate == "") {
+                    createChart(match, matchName)
+                } else {
+                    createChart(match, " - Between Dates (" + matchName + ")")
+                }
+
+
+            });
+
+
+            // Make the Range Slider
+            $("#myRangeSlider").on("change", function () {
+                var minDate = moment($('#min').val()).format('YY MM DD');
+                var maxDate = moment($('#max').val()).format('YY MM DD');
+                var countryValue = $('select#countrySelector').val();
+                console.log("countryvalue" + countryValue)
+
+                const match = evidenceData.filter(countryArr =>
+                    moment(countryArr[3]).format('YY MM DD') <= maxDate &&
+                    moment(countryArr[3]).format('YY MM DD') >= minDate &&
+                    (countryArr[0] === countryValue || isNaN(countryArr[0])));
+
+                console.log(match.length)
+
+                if (match.length == 0) {
+                    createChart(evidenceData, " ")
+                } else if (match.length != 0 && countryValue == "") {
+                    createChart(match, " - Between Dates", false)
+                } else {
+                    createChart(match, " - Between Dates (" + countryValue + ")", false)
+                }
+
+            });
+
+
+
+            // const filterHandlers = new Map([
+            //     [
+            //         'budget',
+            //         (val, [min, max]) => val >= min && val <= max
+            //     ],
+            //     [
+            //         'categories',
+            //         (current, categories) => current.some( // some - at least one, every - all of them 
+            //             (c) => categories.includes(c)
+            //         )
+            //     ],
+            //     []
+            // ]);
+
+            // const applyFilters = (arr, filters) => {
+            //     const filterKeys = Object.keys(filters);
+
+            //     return arr.filter(o => filterKeys.every((key) => {
+            //         const handler = filterHandlers.get(key);
+
+            //         return !handler || handler(o[key], filters[key]);
+            //     }));
+            // }
+
+            // const data = [{ "budget": "220", "categories": ["party", "school"] }, { "budget": "450", "categories": ["self"] }, { "budget": "600", "categories": ["dev", "work"] }];
+
+            // const filters = { "budget": ["200", "500"], "categories": ["party"] };
+
+            // const result = applyFilters(data, filters);
+
+
+
+
+        }
+
+        populate();
+
+    </script>
+
+</body>
+
+</html>

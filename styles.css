@@ -1,0 +1,396 @@
+body {
+    color: #404040;
+    font: 400 15px/22px 'Open Sans', 'Helvetica Neue', sans-serif;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    /* overflow:hidden; */
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* .title {
+    position: absolute;
+    width: 100%;
+    height: 10%;
+    top: 0;
+    font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
+    overflow: hidden;
+    background-color:#e6f2f8;
+    z-index:1;
+} */
+
+.title span {
+    color: #007dbc;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+h1 {
+    color: #007dbc;
+    font-size: 20px;
+    /* top: 50%;
+    transform: translate(-50%, -50%);
+    padding-left:10px; */
+}
+
+.filters {
+    position: fixed;
+    width: 34%;
+    height: 100%;
+    overflow: hidden;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+    border-right: solid 1px #f1f1f1;
+}
+
+.main {
+    position: absolute;
+    width: 66%;
+    height: 100%;
+    left: 34%;
+    top: -60px;
+    /* overflow: auto; */
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 20px;
+}
+
+/* Search filter. Most of it is already in bootstrap. */
+.form-control {
+    font-size: 12px;
+    max-width: 100%;
+    border: none;
+    background-color: #e6f2f8;
+    font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
+}
+
+/* Search filter. Most of it is already in bootstrap. */
+.form-control:focus {
+    font-size: 12px;
+    max-width: 100%;
+    box-shadow: 0 0 0 0.25rem #cce5f2;
+    background-color: #e6f2f8;
+    color: #767676;
+}
+
+/* Select filter. Most of it is already in bootstrap. */
+.form-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
+    font-size: 12px;
+    color: #767676;
+    margin: 0;
+    max-width: 100%;
+    cursor: inherit;
+    border: none;
+    /* background: url(https://stackoverflow.com/favicon.ico) 0% / 15% no-repeat white; */
+}
+
+.filter-option {
+    font-size: 12px;
+}
+
+.dropdown-menu {
+    font-size: 12px;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    color: #fff;
+    text-decoration: none;
+    background-color: #007dbc;
+}
+
+/* Selectors */
+.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+    width: 80%;
+}
+
+.bootstrap-select>.dropdown-toggle.bs-placeholder,
+.bootstrap-select>.dropdown-toggle.bs-placeholder:active {
+    color: #999;
+    background-color: white;
+    border: none;
+}
+
+.bootstrap-select>.dropdown-toggle.bs-placeholder:hover {
+    color: #999;
+    background-color: #e6f2f8;
+    border: none;
+}
+
+.bootstrap-select>.dropdown-toggle.bs-placeholder:focus .bootstrap-select>.dropdown-toggle.bs-placeholder:hover {
+    background-color: #007dbc;
+    box-shadow: 0 0 0 0.25rem #007dbc;
+    border: none;
+}
+
+.bootstrap-select .dropdown-toggle:focus,
+.bootstrap-select>select.mobile-device:focus+.dropdown-toggle {
+    outline: thin dotted #58adb3 !important;
+    outline: 5px #58a -webkit-focus-ring-color !important;
+    outline-offset: -2px;
+}
+
+/* Date Range */
+#myRangeSlider {
+    width:100%;
+    padding-left:10%;
+    padding-right:10%;
+}
+
+.dropdown-menu.show {
+    display: block;
+    width: 100%;
+}
+
+.dropdown-toggle::after {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    margin-top: -5px;
+    font-size:20px;
+}
+
+.btn-secondary {
+    font-size:12px;
+    color: #adadad;
+    background-color: #FFF;
+    border-color: #FFF;
+    font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
+    width:100%;
+    text-align:left;
+}
+
+.btn-secondary:hover {
+    font-size:12px;
+    color: #adadad;
+    background-color: #e6f2f8;
+    font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
+    border:0px;
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active, .btn-secondary:not(:disabled):not(.disabled):active, .show>.btn-secondary.dropdown-toggle {
+    color: #fff;
+    font-size:12px;
+    color: #adadad;
+    background-color: #e6f2f8;
+    border: 0px;
+    border-color:white;
+    box-shadow: 0 0 0 0rem rgb(255 255 255 / 100%);
+}
+
+/*
+#rangeDropdown button {
+    font-size: 12px;
+    max-width: 100%;
+    padding-left: 20px;
+    border: none;
+    color: #9f9f9f;
+    background-color:#FFF;
+    font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
+}
+
+#rangeDropdown:active #myRangeSlider,
+#rangeDropdown:hover #myRangeSlider {
+    display: block;
+    width: 80%;
+} */
+
+.irs--flat .irs-line {
+    top: 25px;
+    height: 6px;
+    background-color: #e4e4e4;
+    border-radius: 4px;
+}
+
+.irs--flat .irs-bar {
+    top: 25px;
+    height: 6px;
+    background-color: #cce5f2
+}
+
+.irs--flat .irs-min,
+.irs--flat .irs-max {
+    top: 0;
+    padding: 1px 3px;
+    color: #e4e4e4;
+    font-size: px;
+    line-height: 1.333;
+    text-shadow: none;
+    background-color: white;
+    border-radius: 4px;
+}
+
+.irs--flat .irs-handle>i:first-child {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 50%;
+    width: 6px;
+    height: 12px;
+    margin-left: -1px;
+    background-color: #99cbe4;
+    border-radius: 4px;
+}
+
+.irs--flat .irs-handle.state_hover>i:first-child,
+.irs--flat .irs-handle:hover>i:first-child {
+    background-color: #007dbc
+}
+
+.irs--flat .irs-from,
+.irs--flat .irs-to,
+.irs--flat .irs-single {
+    color: #4da4d0;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1.333;
+    text-shadow: none;
+    padding: 1px 5px;
+    background-color: white;
+    /* border-radius: 4px */
+}
+
+.irs-from:before,
+.irs-to:before,
+.irs-single:before {
+    position: absolute;
+    display: block;
+    content: "";
+    bottom: -6px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    margin-left: -3px;
+    overflow: hidden;
+    border: 3px solid transparent;
+    border-top-color: #4da4d0
+}
+
+.irs--flat .irs-from:before,
+.irs--flat .irs-to:before,
+.irs--flat .irs-single:before {
+    position: absolute;
+    display: block;
+    content: "";
+    bottom: -6px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    margin-left: -3px;
+    overflow: hidden;
+    border: 3px solid transparent;
+    border-top-color: #007dbc;
+}
+
+
+/* Table Options */
+table {
+    font-size: 10px;
+    padding-left: 10px;
+    border-bottom: 0px;
+}
+
+table td {
+    font-size: 10px;
+    margin: 10px;
+    border-bottom: 0px;
+    vertical-align: top;
+    line-height: 250%;
+}
+
+.tableThumbnail {
+    width: 67px;
+    height: 95px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 15px;
+    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.1), 0 5px 7px 0 rgba(0, 0, 0, 0.05);
+}
+
+thead {
+    visibility: hidden;
+}
+
+.tableTitle {
+    top: 0;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.tableCountry span {
+    font-size: 10px;
+    color: #007dbc;
+    background-color: #e6f2f8;
+    border-bottom: 0px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.tableCategory {
+    font-size: 10px;
+    color: #adadad;
+    background-color: #f1f1f1;
+    border-bottom: 0px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.tableDate span {
+    font-size: 10px;
+    text-align: right;
+    color: #adadad;
+}
+
+.dataTables_filter {
+    background-color: #007dbc;
+    color: #007dbc;
+}
+
+.dataTables_info {
+    font-size: 12px;
+    color: #d6d6d6;
+}
+
+.dataTables_paginate {
+    font-size: 12px;
+    color: #d6d6d6;
+}
+
+a {
+    color: #007dbc;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #007dbc;
+    text-decoration: none;
+}
+
+a:hover {
+    opacity: 0.5;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    border-left: 0;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-track {
+    background: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #b3d8eb;
+    border-radius: 0;
+}
