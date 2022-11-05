@@ -23,8 +23,8 @@ body {
 
 .title span {
     color: #007dbc;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 500;
 }
 
 h1 {
@@ -185,23 +185,6 @@ h1 {
     box-shadow: 0 0 0 0rem rgb(255 255 255 / 100%);
 }
 
-/*
-#rangeDropdown button {
-    font-size: 12px;
-    max-width: 100%;
-    padding-left: 20px;
-    border: none;
-    color: #9f9f9f;
-    background-color:#FFF;
-    font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
-}
-
-#rangeDropdown:active #myRangeSlider,
-#rangeDropdown:hover #myRangeSlider {
-    display: block;
-    width: 80%;
-} */
-
 .irs--flat .irs-line {
     top: 25px;
     height: 6px;
@@ -289,9 +272,34 @@ h1 {
     border-top-color: #007dbc;
 }
 
+/* Load Page */
+.loading {
+    position: absolute;
+    top: 320px;
+    text-align:center;
+    padding-left:40%;
+    width: 100%;
+    font-size:20px;
+    color:#bbbbbb;
+    z-index: -2;
+}
+
+
+/* Chart Options */
+/* #chartBox {
+    height:40%;
+    top:0px;
+} */
+
+#myChart {
+    height:300px;
+    padding-left: 10px;
+    border-bottom: 0px;
+}
 
 /* Table Options */
 table {
+    background-color:white;
     font-size: 10px;
     padding-left: 10px;
     border-bottom: 0px;
@@ -320,8 +328,8 @@ thead {
 
 .tableTitle {
     top: 0;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .tableCountry span {

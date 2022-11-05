@@ -61,7 +61,7 @@
     <div class="filters">
         <div class="title">
             <span><img id="logo" src="logo.png" style="height:25px;" />
-                &nbsp;All Regional Products
+                &nbsp;WFP Evidence Explorer
                 <br>
                 <hr><br>
             </span>
@@ -122,12 +122,13 @@
         <br>
         <hr>
         <br>
-
-        <div>
+        <div id="chartBox">
             <canvas id="myChart" style="width:100%;"></canvas>
         </div>
     </div>
 
+
+    <div class="loading">Loading...</div>
     <div class="main">
         <table class="table mydatatable" id="mydatatable">
             <thead>
@@ -164,7 +165,7 @@
                 function (settings, data, dataIndex) {
                     var min = moment($('#min').val());
                     var max = moment($('#max').val());
-                    var dateFilter = moment(data[4]) || 0; 
+                    var dateFilter = moment(data[4]) || 0;
 
                     if ((isNaN(min) && isNaN(max)) ||
                         (isNaN(min) && dateFilter <= max) ||
@@ -211,7 +212,7 @@
                     order: [[4, ascending = 'false']],
                     serverSide: false,
                     deferRender: true,
-                    pageLength: 20,
+                    pageLength: 10,
                     paging: true,
                     "dom": "<<t>ip>",
                     // We need those columns to be searchable, but not visible
@@ -222,10 +223,12 @@
                     }]
                 });
 
+
                 // Add the search filter to the side
                 $('#searchInput').keyup(function () {
                     oTable.search($(this).val()).draw();
                 });
+
 
                 // Country Selector
                 $('select#countrySelector').change(function () {
@@ -233,21 +236,23 @@
                     oTable.columns(2).search($(this).val()).draw();
 
                     // Chart
-                    var minDate = moment($('#min').val()).format('YY MM DD');
-                    var maxDate = moment($('#max').val()).format('YY MM DD');
-                    var countryValue = this.value
+                    // var minDate = moment($('#min').val()).format('YY MM DD');
+                    // var maxDate = moment($('#max').val()).format('YY MM DD');
+                    // var countryValue = this.value
 
-                    const match = evidenceData.data.filter(countryArr => countryArr[0] === countryValue &&
-                        (moment(countryArr[3]).format('YY MM DD') <= maxDate || isNaN(countryArr[3])) &&
-                        (moment(countryArr[3]).format('YY MM DD') >= minDate || isNaN(countryArr[3])));
-                    if (match.length == 0) {
-                        createChart(evidenceData, " ")
-                    } else if (match.length != 0 && maxDate == "") {
-                        createChart(match, countryValue)
-                    } else {
-                        createChart(match, " - Between Dates (" + countryValue + ")")
-                    }
+                    // const match = evidenceData.data.filter(countryArr => countryArr.Country === countryValue &&
+                    //     (moment(countryArr.Date).format('YY MM DD') <= maxDate || isNaN(countryArr.Date)) &&
+                    //     (moment(countryArr.Date).format('YY MM DD') >= minDate || isNaN(countryArr.Date)));
+
+                    // if (match.length == 0) {
+                    //     createChart(evidenceData.data, " ")
+                    // } else if (match.length != 0 && maxDate == "") {
+                    //     createChart(match, countryValue)
+                    // } else {
+                    //     createChart(match, " - Between Dates (" + countryValue + ")")
+                    // }
                 });
+
 
                 $('select#categorySelector').change(function () {
                     oTable.columns(3).search($(this).val()).draw();
@@ -337,10 +342,10 @@
                     chartStatus.destroy();
                 }
 
-                var countryCount = chartData.data.map(function (d) { return d.Country; });
+                var countryCount = chartData.map(function (d) { return d.Country; });
 
 
-                var monthCount = chartData.data.map(function (d) {
+                var monthCount = chartData.map(function (d) {
                     var date = moment(d.Date).startOf('month').format('MMM YY').toString();
                     return date;
                 });
@@ -348,7 +353,7 @@
 
                 // Count number for each unique value
                 function searchFunction(searchCriteria) {
-                    var count = chartData.data.filter(function (d) {
+                    var count = chartData.filter(function (d) {
                         if (moment(d.Date).startOf('month').format('MMM YY').toString() === searchCriteria) {
                             return true;
                         } else {
@@ -360,8 +365,6 @@
 
                 var uniqueMonth = [... new Set(monthCount)]
                 var values = uniqueMonth.map(searchFunction)
-
-
 
 
                 // Building the Chart
@@ -379,6 +382,8 @@
                     data: data,
                     options: {
                         animation: animationTrigger,
+                        responsive:true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 display: false
@@ -403,65 +408,53 @@
             }
 
 
-            createChart(evidenceData)
+            createChart(evidenceData.data)
 
-            // // Make the country selector work for the chart
-            // $('select#countrySelector').on('change', function (e) {
-            //     var minDate = moment($('#min').val()).format('YY MM DD');
-            //     var maxDate = moment($('#max').val()).format('YY MM DD');
-            //     var countryValue = this.value
+            // Make the country selector work for the chart
+            $('select#countrySelector').on('change', function (e) {
+                var minDate = moment($('#min').val()).format('YY MM DD');
+                var maxDate = moment($('#max').val()).format('YY MM DD');
+                var countryValue = this.value
 
-            //     const match = evidenceData.data.filter(countryArr => countryArr[0] === countryValue &&
-            //         (moment(countryArr[3]).format('YY MM DD') <= maxDate || isNaN(countryArr[3])) &&
-            //         (moment(countryArr[3]).format('YY MM DD') >= minDate || isNaN(countryArr[3])));
+                const match = evidenceData.data.filter(countryArr => countryArr.Country === countryValue &&
+                    (moment(countryArr.Date).format('YY MM DD') <= maxDate || isNaN(countryArr.Date)) &&
+                    (moment(countryArr.Date).format('YY MM DD') >= minDate || isNaN(countryArr.Date)));
 
+                if (match.length == 0) {
+                    createChart(evidenceData.data, " ")
+                } else if (match.length != 0 && maxDate == "") {
+                    createChart(match, countryValue)
+                } else {
+                    createChart(match, " - Between Dates (" + countryValue + ")")
+                }
 
-            //     if (match.length == 0) {
-            //         createChart(evidenceData, " ")
-            //     } else if (match.length != 0 && maxDate == "") {
-            //         createChart(match, countryValue)
-            //     } else {
-            //         createChart(match, " - Between Dates (" + countryValue + ")")
-            //     }
-
-            // });
-
-
-            // // Make the Range Slider
-            // $("#myRangeSlider").on("change", function () {
-            //     var minDate = moment($('#min').val()).format('YY MM DD');
-            //     var maxDate = moment($('#max').val()).format('YY MM DD');
-            //     var countryValue = $('select#countrySelector').val();
+            });
 
 
-            //     const match = evidenceData.data.filter(countryArr =>
-            //         moment(countryArr[3]).format('YY MM DD') <= maxDate &&
-            //         moment(countryArr[3]).format('YY MM DD') >= minDate &&
-            //         (countryArr[0] === countryValue || isNaN(countryArr[0])));
+            // Make the Range Slider
+            $("#myRangeSlider").on("change", function () {
+                var minDate = moment($('#min').val()).format('YY MM DD');
+                var maxDate = moment($('#max').val()).format('YY MM DD');
+                var countryValue = $('select#countrySelector').val();
 
 
-            //     if (match.length == 0) {
-            //         createChart(evidenceData, " ", false)
-            //     } else if (match.length != 0 && countryValue == "") {
-            //         createChart(match, " - Between Dates", false)
-            //     } else {
-            //         createChart(match, " - Between Dates (" + countryValue + ")", false)
-            //     }
-            // });
+                const match = evidenceData.data.filter(countryArr =>
+                    moment(countryArr.Date).format('YY MM DD') <= maxDate &&
+                    moment(countryArr.Date).format('YY MM DD') >= minDate &&
+                    (countryArr[0] === countryValue || isNaN(countryArr.Country)));
 
+
+                if (match.length == 0) {
+                    createChart(evidenceData, " ", false)
+                } else if (match.length != 0 && countryValue == "") {
+                    createChart(match, " - Between Dates", false)
+                } else {
+                    createChart(match, " - Between Dates (" + countryValue + ")", false)
+                }
+            });
 
 
 
-
-
-
-
-
-
-
-
-
-            
             // const filterHandlers = new Map([
             //     [
             //         'budget',
