@@ -157,37 +157,35 @@
 
             const response = await fetch(url);
             const evidenceData = await response.json();
-            console.log(evidenceData)
+            
 
 
 
-            // Build Table
-            function buildTable(data) {
-                var table = document.getElementById('myTable')
-                table.innerHTML = data.map(function (row) {
-                    let [country, title, category, date, link, image] = row;
-                    date = moment(date).format('dddd, D MMMM YYYY');
+            // // Build Table
+            // function buildTable(data) {
+            //     var table = document.getElementById('myTable')
+            //     table.innerHTML = data.map(function (row) {
+            //         let [country, title, category, date, link, image] = row;
+            //         date = moment(date).format('dddd, D MMMM YYYY');
 
-                    return `<tr>
-                        <td>
-                            <br><br>
-                            <a href="${link}" target='_blank'>
-                            <img class="tableThumbnail" src=${image}><br><br>
-                        </td></a>
-                        <td>
-                            <span class="tableTitle"><br><br><a href="${link}" target='_blank'>${title}</a><br></span>
-                            <span class="tableCountry"><span>&nbsp;&nbsp;${country}&nbsp;&nbsp;</span></span>&nbsp;&nbsp;
-                            <span class="tableCategory">&nbsp;&nbsp;${category}&nbsp;&nbsp;</span>
-                            <span class="tableDate"><span><br>&nbsp;&nbsp;<i class="far fa-calendar"></i>&nbsp;&nbsp;${date}</span></span>
-                        </td>
-                        <td>${country}</td>
-                        <td>${category}</td>
-                        <td>${date}</td>
-                    </tr>`;
-                }).join('');
-            }
-
-            const currentDate = new Date();
+            //         return `<tr>
+            //             <td>
+            //                 <br><br>
+            //                 <a href="${link}" target='_blank'>
+            //                 <img class="tableThumbnail" src=${image}><br><br>
+            //             </td></a>
+            //             <td>
+            //                 <span class="tableTitle"><br><br><a href="${link}" target='_blank'>${title}</a><br></span>
+            //                 <span class="tableCountry"><span>&nbsp;&nbsp;${country}&nbsp;&nbsp;</span></span>&nbsp;&nbsp;
+            //                 <span class="tableCategory">&nbsp;&nbsp;${category}&nbsp;&nbsp;</span>
+            //                 <span class="tableDate"><span><br>&nbsp;&nbsp;<i class="far fa-calendar"></i>&nbsp;&nbsp;${date}</span></span>
+            //             </td>
+            //             <td>${country}</td>
+            //             <td>${category}</td>
+            //             <td>${date}</td>
+            //         </tr>`;
+            //     }).join('');
+            // }
 
             const countrySelector = document.getElementById('countrySelector')
 
@@ -212,15 +210,40 @@
             // Pull in the Data Tables via jQuery
             $(document).ready(function () {
                 var oTable = $('.mydatatable').DataTable({
-                    // serverSide: false,
-                    // ajax: 'https://raw.githubusercontent.com/ctedja/regional_evidence/main/data.json',
-                    // ajax: {
-                    //     "url": $('.mydatatable').data('json-source'),
-                    //     "dataSrc": ""
-                    // },
+                    ajax: "https://raw.githubusercontent.com/ctedja/regional_evidence/main/data.json",
+                    columns: [
+                        // { data: "name" },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return ('<br><br><a href="' + row.Link + '" target="_blank"><img class="tableThumbnail" src=' + row.Image + '><br><br>');
+                            }
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                var formattedDate = moment(row.Date).format('dddd, D MMMM YYYY');
+                                return ('<span class="tableTitle"><br><br><a href="' + row.Link + '" target="_blank">' + row.Title + '</a><br></span>' +
+                                    '<span class="tableCountry"><span>&nbsp;&nbsp;' + row.Country + '&nbsp;&nbsp;</span></span>&nbsp;&nbsp' +
+                                    '<span class="tableCategory">&nbsp;&nbsp;' + row.Category + '&nbsp;&nbsp;</span>' +
+                                    '<span class="tableDate"><span><br>&nbsp;&nbsp;<i class="far fa-calendar"></i>&nbsp;&nbsp;' + formattedDate + '</span></span>');
+                            }
+                        },
+                        { data: "Country" },
+                        { data: "Category" },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                var formattedDate = moment(row.Date).format('YYYY MM DD');
+                                return (formattedDate)
+                            }
+                        },
+                        
+                    ],
+                    // order: [[4, 'desc']],
                     serverSide: false,
                     deferRender: true,
-                    pageLength: 8,
+                    pageLength: 20,
                     paging: true,
                     "dom": "<<t>ip>",
                     // We need those columns to be searchable, but not visible
@@ -254,7 +277,9 @@
                 // });
             })
 
-            buildTable(evidenceData)
+
+
+            // buildTable(evidenceData)
 
 
             // Getting Range Slider Elements
@@ -266,6 +291,8 @@
                 max = moment("2022-10-10"),
                 from = moment("2019-01-01"),
                 to = moment("2022-10-10");
+
+
 
             $range.ionRangeSlider({
                 type: "double",
@@ -328,16 +355,19 @@
                     chartStatus.destroy();
                 }
 
-                var countryCount = chartData.map(function (d) { return d[0]; });
-                var monthCount = chartData.map(function (d) {
-                    var date = moment(d[3]).startOf('month').format('MMM YY').toString();
+                var countryCount = chartData.data.map(function (d) { return d.Country; });
+                console.log(countryCount)
+                
+                var monthCount = chartData.data.map(function (d) {
+                    var date = moment(d.Date).startOf('month').format('MMM YY').toString();
                     return date;
                 });
+                console.log(monthCount)
 
                 // Count number for each unique value
                 function searchFunction(searchCriteria) {
-                    var count = chartData.filter(function (item) {
-                        if (moment(item[3]).startOf('month').format('MMM YY').toString() === searchCriteria) {
+                    var count = chartData.data.filter(function (d) {
+                        if (moment(d.Date).startOf('month').format('MMM YY').toString() === searchCriteria) {
                             return true;
                         } else {
                             return false;
@@ -402,7 +432,7 @@
                 const match = evidenceData.filter(countryArr => countryArr[0] === countryValue &&
                     (moment(countryArr[3]).format('YY MM DD') <= maxDate || isNaN(countryArr[3])) &&
                     (moment(countryArr[3]).format('YY MM DD') >= minDate || isNaN(countryArr[3])));
-                
+
 
                 if (match.length == 0) {
                     createChart(evidenceData, " ")
@@ -421,14 +451,14 @@
                 var minDate = moment($('#min').val()).format('YY MM DD');
                 var maxDate = moment($('#max').val()).format('YY MM DD');
                 var countryValue = $('select#countrySelector').val();
-                console.log("countryvalue" + countryValue)
+               
 
                 const match = evidenceData.filter(countryArr =>
                     moment(countryArr[3]).format('YY MM DD') <= maxDate &&
                     moment(countryArr[3]).format('YY MM DD') >= minDate &&
                     (countryArr[0] === countryValue || isNaN(countryArr[0])));
 
-                console.log(match.length)
+               
 
                 if (match.length == 0) {
                     createChart(evidenceData, " ")
@@ -437,7 +467,6 @@
                 } else {
                     createChart(match, " - Between Dates (" + countryValue + ")", false)
                 }
-
             });
 
 
