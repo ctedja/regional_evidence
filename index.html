@@ -157,43 +157,44 @@
 
             const response = await fetch(url);
             const evidenceData = await response.json();
-
             const countrySelector = document.getElementById('countrySelector')
 
-            // Custom filtering function which will search data in column four between two values
-            $.fn.dataTable.ext.search.push(
-                function (settings, data, dataIndex) {
-                    var min = moment($('#min').val());
-                    var max = moment($('#max').val());
-                    var dateFilter = moment(data[4]) || 0;
 
-                    if ((isNaN(min) && isNaN(max)) ||
-                        (isNaN(min) && dateFilter <= max) ||
-                        (min <= dateFilter && isNaN(max)) ||
-                        (min <= dateFilter && dateFilter <= max)) {
-                        return true;
-                    }
-                    return false;
-                }
-            );
-
-
-            // Pull in the Data Tables via jQuery
             $(document).ready(function () {
+
+
+                // Custom filtering function which will search data in column four between two values
+                $.fn.dataTable.ext.search.push(
+                    function (settings, data, dataIndex) {
+                        var min = moment($('#min').val());
+                        var max = moment($('#max').val());
+                        var dateFilter = moment(data[4]) || 0;
+
+                        if ((isNaN(min) && isNaN(max)) ||
+                            (isNaN(min) && dateFilter <= max) ||
+                            (min <= dateFilter && isNaN(max)) ||
+                            (min <= dateFilter && dateFilter <= max)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                );
+
+                // Pull in the Data Tables via jQuery
                 var oTable = $('.mydatatable').DataTable({
                     ajax: "https://raw.githubusercontent.com/ctedja/regional_evidence/main/data.json",
                     columns: [
                         {
                             data: null,
                             render: function (data, type, row) {
-                                return ('<br><br><a href="' + row.Link + '" target="_blank"><img class="tableThumbnail" src=' + row.Image + '><br><br>');
+                                return ('<br><a href="' + row.Link + '" target="_blank"><img class="tableThumbnail" src=' + row.Image + '><br><br>');
                             }
                         },
                         {
                             data: null,
                             render: function (data, type, row) {
                                 var formattedDate = moment(row.Date).format('dddd, D MMMM YYYY');
-                                return ('<span class="tableTitle"><br><br><a href="' + row.Link + '" target="_blank">' + row.Title + '</a><br></span>' +
+                                return ('<span class="tableTitle"><br><a href="' + row.Link + '" target="_blank">' + row.Title + '</a><br></span>' +
                                     '<span class="tableCountry"><span>&nbsp;&nbsp;' + row.Country + '&nbsp;&nbsp;</span></span>&nbsp;&nbsp' +
                                     '<span class="tableCategory">&nbsp;&nbsp;' + row.Category + '&nbsp;&nbsp;</span>' +
                                     '<span class="tableDate"><span><br>&nbsp;&nbsp;<i class="far fa-calendar"></i>&nbsp;&nbsp;' + formattedDate + '</span></span>');
@@ -209,11 +210,20 @@
                             }
                         },
                     ],
-                    order: [[4, ascending = 'false']],
+                    order: [[4]],
                     serverSide: false,
                     deferRender: true,
                     pageLength: 10,
                     paging: true,
+                    pagingType: 'simple_numbers',
+                    language: {
+                        paginate: {
+                            next: '>', // or '→'
+                            previous: '<' // or '←' 
+                        },
+                        info: " _START_ to _END_ out of _TOTAL_ entries",
+                        infoFiltered: ""
+                    },
                     "dom": "<<t>ip>",
                     // We need those columns to be searchable, but not visible
                     "columnDefs": [{
@@ -221,6 +231,18 @@
                         visible: false,
                         searchable: true,
                     }]
+                });
+
+                // Quick configuration - datatable clickable
+                $('.mydatatable tbody').on('click', 'tr', function (data, type, row) {
+                    window.open(oTable.row(this).data().Link, '_blank');
+                });
+
+                // Quick configuration - datatable scroll on paginate button
+                oTable.on('page.dt', function () {
+                    $('html, body').animate({
+                        scrollTop: $(".dataTables_wrapper").offset().top
+                    });
                 });
 
 
@@ -266,225 +288,308 @@
                 $('#min').keyup(function () {
                     oTable.columns(4).draw();
                 });
-            })
 
 
 
-            // buildTable(evidenceData)
-            // Getting Range Slider Elements
-            var $range = $(".js-range-slider"),
-                $inputFrom = $(".js-input-from"),
-                $inputTo = $(".js-input-to"),
-                instance,
-                min = moment("2019-01-01"),
-                max = moment("2022-10-10"),
-                from = moment("2019-01-01"),
-                to = moment("2022-10-10");
 
-            $range.ionRangeSlider({
-                type: "double",
-                min: min,
-                max: max,
-                onStart: updateInputs,
-                onChange: updateInputs,
-                onFinish: updateInputs,
-                prettify: function (num) {
-                    return moment(num).format('DD MMM YY');
-                }
-            });
-            instance = $range.data("ionRangeSlider");
+                // buildTable(evidenceData)
+                // Getting Range Slider Elements
+                var $range = $(".js-range-slider"),
+                    $inputFrom = $(".js-input-from"),
+                    $inputTo = $(".js-input-to"),
+                    instance,
+                    min = moment("2017-01-01"),
+                    max = moment(Date()),
+                    from = moment("2017-01-01"),
+                    to = moment(Date());
 
-            function updateInputs(data) {
-                from = data.from;
-                to = data.to;
-                $inputFrom.prop("value", from);
-                $inputTo.prop("value", to);
-
-                // Force keyup event to run min max event handler
-                $('#min').trigger('keyup');
-            }
-
-            $inputFrom.on("input", function () {
-                var val = $(this).prop("value");
-                // validate
-                if (val < min) {
-                    val = min;
-                } else if (val > to) {
-                    val = to;
-                }
-                instance.update({
-                    from: val
+                $range.ionRangeSlider({
+                    type: "double",
+                    min: min,
+                    max: max,
+                    onStart: updateInputs,
+                    onChange: updateInputs,
+                    onFinish: updateInputs,
+                    prettify: function (num) {
+                        return moment(num).format('DD MMM YY');
+                    }
                 });
-            });
+                instance = $range.data("ionRangeSlider");
 
-            $inputTo.on("input", function () {
-                var val = $(this).prop("value");
-                // validate
-                if (val < from) {
-                    val = from;
-                } else if (val > max) {
-                    val = max;
+                function updateInputs(data) {
+                    from = data.from;
+                    to = data.to;
+                    $inputFrom.prop("value", from);
+                    $inputTo.prop("value", to);
+
+                    // Force keyup event to run min max event handler
+                    $('#min').trigger('keyup');
                 }
-                instance.update({
-                    to: val
+
+                $inputFrom.on("input", function () {
+                    var val = $(this).prop("value");
+                    // validate
+                    if (val < min) {
+                        val = min;
+                    } else if (val > to) {
+                        val = to;
+                    }
+                    instance.update({
+                        from: val
+                    });
                 });
-            });
 
-
-
-
-            // Create our Chart
-            function createChart(chartData, searchedName = "", animationTrigger = true) {
-
-                // Remove first
-                let chartStatus = Chart.getChart("myChart");
-                if (chartStatus != undefined) {
-                    chartStatus.destroy();
-                }
-
-                var countryCount = chartData.map(function (d) { return d.Country; });
-
-
-                var monthCount = chartData.map(function (d) {
-                    var date = moment(d.Date).startOf('month').format('MMM YY').toString();
-                    return date;
+                $inputTo.on("input", function () {
+                    var val = $(this).prop("value");
+                    // validate
+                    if (val < from) {
+                        val = from;
+                    } else if (val > max) {
+                        val = max;
+                    }
+                    instance.update({
+                        to: val
+                    });
                 });
 
 
-                // Count number for each unique value
-                function searchFunction(searchCriteria) {
-                    var count = chartData.filter(function (d) {
-                        if (moment(d.Date).startOf('month').format('MMM YY').toString() === searchCriteria) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }).length;
-                    return count;
-                }
-
-                var uniqueMonth = [... new Set(monthCount)]
-                var values = uniqueMonth.map(searchFunction)
 
 
-                // Building the Chart
-                const data = {
-                    labels: uniqueMonth,
-                    datasets: [{
-                        backgroundColor: '#cce5f2',
-                        borderColor: '#cce5f2',
-                        data: values,
-                    }]
-                };
+                // Create our Chart
+                function createChart(chartData, searchedName = "", animationTrigger = true) {
 
-                const config = {
-                    type: 'bar',
-                    data: data,
-                    options: {
-                        animation: animationTrigger,
-                        responsive:true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Number of unique products ' + searchedName,
-                                align: 'start',
-                                padding: {
-                                    top: 10,
-                                    bottom: 30
+                    // Remove first
+                    let chartStatus = Chart.getChart("myChart");
+                    if (chartStatus != undefined) {
+                        chartStatus.destroy();
+                    }
+
+
+                    var countryCount = chartData.map(function (d) { return d.Country; });
+
+
+                    var monthCount = chartData.map(function (d) {
+                        var date = moment(d.Date).startOf('month').format('MMM YY').toString();
+                        return date;
+                    });
+
+                    // Count number for each unique value
+                    function searchFunction(searchCriteria) {
+                        var count = chartData.filter(function (d) {
+                            if (moment(d.Date).startOf('month').format('MMM YY').toString() === searchCriteria) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }).length;
+                        return count;
+                    }
+
+                    // Get just the number of unique values, and then reverse the order
+                    var uniqueMonth = [... new Set(monthCount)].filter(item => item != "Invalid date")
+                    console.log(uniqueMonth)
+
+                    // Use our searchFunction function to count the total number of values for each unique month/year
+                    var values = uniqueMonth.map(searchFunction)
+
+
+                    // Building the Chart
+                    const data = {
+                        labels: uniqueMonth,
+                        datasets: [{
+                            backgroundColor: '#cce5f2',
+                            borderColor: '#cce5f2',
+                            data: values,
+                        }]
+                    };
+
+                    const config = {
+                        type: 'bar',
+                        data: data,
+                        options: {
+                            animation: animationTrigger,
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'WFP products ' + searchedName,
+                                    align: 'start',
+                                    padding: {
+                                        top: 10,
+                                        bottom: 30
+                                    }
                                 }
                             }
                         }
+                    };
+
+                    const myChart = new Chart(
+                        document.getElementById('myChart'),
+                        config
+                    );
+                }
+
+
+                createChart(evidenceData.data)
+
+                // Make the country selector work for the chart
+                $('select#countrySelector').on('change', function (e) {
+                    var minDate = moment($('#min').val()).format('YY MM DD');
+                    var maxDate = moment($('#max').val()).format('YY MM DD');
+                    var countryValue = this.value;
+                    var categoryValue = $('select#categorySelector').val();
+
+                    const match = evidenceData.data.filter(countryArr => countryArr.Country === countryValue &&
+                        (countryArr.Category === categoryValue || isNaN(countryArr.Category)) &&
+                        (moment(countryArr.Date).format('YY MM DD') <= maxDate || isNaN(countryArr.Date)) &&
+                        (moment(countryArr.Date).format('YY MM DD') >= minDate || isNaN(countryArr.Date)));
+
+                    if (match.length == 0) {
+                        createChart(evidenceData.data, " ")
+
+                    } else if (match.length != 0 && countryValue != "" && maxDate == "" && categoryValue == "") {
+                        createChart(match, " (" + countryValue + ")")
+
+                    } else if (match.length != 0 && countryValue == "" && maxDate == "" && categoryValue != "") {
+                        createChart(match, " (" + categoryValue + ")")
+
+                    } else if (match.length != 0 && countryValue != "" && maxDate == "" && categoryValue != "") {
+                        createChart(match, " (" + countryValue + ", " + categoryValue + ")")
+
+                    } else if (match.length != 0 && countryValue == "" && maxDate != "" && categoryValue == "") {
+                        createChart(match, "- Between Dates")
+
+                    } else if (match.length != 0 && countryValue != "" && maxDate != "" && categoryValue == "") {
+                        createChart(match, "- Between Dates (" + countryValue + ")")
+
+                    } else if (match.length != 0 && countryValue == "" && maxDate != "" && categoryValue != "") {
+                        createChart(match, "- Between Dates (" + categoryValue + ")")
+
+                    } else {
+                        createChart(match, "- Between Dates (" + countryValue + ", " + categoryValue + ")")
                     }
-                };
-
-                const myChart = new Chart(
-                    document.getElementById('myChart'),
-                    config
-                );
-            }
+                });
 
 
-            createChart(evidenceData.data)
+                $('select#categorySelector').on('change', function (e) {
+                    var minDate = moment($('#min').val()).format('YY MM DD');
+                    var maxDate = moment($('#max').val()).format('YY MM DD');
+                    var categoryValue = this.value;
+                    var countryValue = $('select#countrySelector').val();
 
-            // Make the country selector work for the chart
-            $('select#countrySelector').on('change', function (e) {
-                var minDate = moment($('#min').val()).format('YY MM DD');
-                var maxDate = moment($('#max').val()).format('YY MM DD');
-                var countryValue = this.value
+                    const match = evidenceData.data.filter(countryArr => countryArr.Category === categoryValue &&
+                        (countryArr.Country === countryValue || isNaN(countryArr.Country)) &&
+                        (moment(countryArr.Date).format('YY MM DD') <= maxDate || isNaN(countryArr.Date)) &&
+                        (moment(countryArr.Date).format('YY MM DD') >= minDate || isNaN(countryArr.Date)));
 
-                const match = evidenceData.data.filter(countryArr => countryArr.Country === countryValue &&
-                    (moment(countryArr.Date).format('YY MM DD') <= maxDate || isNaN(countryArr.Date)) &&
-                    (moment(countryArr.Date).format('YY MM DD') >= minDate || isNaN(countryArr.Date)));
+                    if (match.length == 0) {
+                        createChart(evidenceData.data, " ")
 
-                if (match.length == 0) {
-                    createChart(evidenceData.data, " ")
-                } else if (match.length != 0 && maxDate == "") {
-                    createChart(match, countryValue)
-                } else {
-                    createChart(match, " - Between Dates (" + countryValue + ")")
-                }
+                    } else if (match.length != 0 && countryValue != "" && maxDate == "" && categoryValue == "") {
+                        createChart(match, " (" + countryValue + ")")
 
-            });
+                    } else if (match.length != 0 && countryValue == "" && maxDate == "" && categoryValue != "") {
+                        createChart(match, " (" + categoryValue + ")")
 
+                    } else if (match.length != 0 && countryValue != "" && maxDate == "" && categoryValue != "") {
+                        createChart(match, " (" + countryValue + ", " + categoryValue + ")")
 
-            // Make the Range Slider
-            $("#myRangeSlider").on("change", function () {
-                var minDate = moment($('#min').val()).format('YY MM DD');
-                var maxDate = moment($('#max').val()).format('YY MM DD');
-                var countryValue = $('select#countrySelector').val();
+                    } else if (match.length != 0 && countryValue == "" && maxDate != "" && categoryValue == "") {
+                        createChart(match, "- Between Dates")
 
+                    } else if (match.length != 0 && countryValue != "" && maxDate != "" && categoryValue == "") {
+                        createChart(match, "- Between Dates (" + countryValue + ")")
 
-                const match = evidenceData.data.filter(countryArr =>
-                    moment(countryArr.Date).format('YY MM DD') <= maxDate &&
-                    moment(countryArr.Date).format('YY MM DD') >= minDate &&
-                    (countryArr[0] === countryValue || isNaN(countryArr.Country)));
+                    } else if (match.length != 0 && countryValue == "" && maxDate != "" && categoryValue != "") {
+                        createChart(match, "- Between Dates (" + categoryValue + ")")
 
-
-                if (match.length == 0) {
-                    createChart(evidenceData, " ", false)
-                } else if (match.length != 0 && countryValue == "") {
-                    createChart(match, " - Between Dates", false)
-                } else {
-                    createChart(match, " - Between Dates (" + countryValue + ")", false)
-                }
-            });
+                    } else {
+                        createChart(match, "- Between Dates (" + countryValue + ", " + categoryValue + ")")
+                    }
+                });
 
 
+                // Make the Range Slider
+                $("#myRangeSlider").on("mouseup", function () {
+                    var minDate = moment($('#min').val()).format('YY MM DD');
+                    var maxDate = moment($('#max').val()).format('YY MM DD');
+                    var countryValue = $('select#countrySelector').val();
+                    var categoryValue = $('select#categorySelector').val();
 
-            // const filterHandlers = new Map([
-            //     [
-            //         'budget',
-            //         (val, [min, max]) => val >= min && val <= max
-            //     ],
-            //     [
-            //         'categories',
-            //         (current, categories) => current.some( // some - at least one, every - all of them 
-            //             (c) => categories.includes(c)
-            //         )
-            //     ],
-            //     []
-            // ]);
+                    const match = evidenceData.data.filter(countryArr =>
+                        moment(countryArr.Date).format('YY MM DD') <= maxDate &&
+                        moment(countryArr.Date).format('YY MM DD') >= minDate &&
+                        (countryArr.Country === countryValue || isNaN(countryArr.Country)) &&
+                        (countryArr.Category === categoryValue || isNaN(countryArr.Category)));
 
-            // const applyFilters = (arr, filters) => {
-            //     const filterKeys = Object.keys(filters);
+                    // This doesn't work
+                    var dateText = document.getElementById('dropdownMenuButton')
 
-            //     return arr.filter(o => filterKeys.every((key) => {
-            //         const handler = filterHandlers.get(key);
+                    if (match.length == 0) {
+                        dateText.innerHTML = 'Date'
+                        $("#dropdownMenuButton").removeClass('dropdownAddClass')
+                    } else {
+                        dateText.innerHTML = (moment(minDate, 'YY MM DD').format('MMM YYYY') + ' to ' + moment(maxDate, 'YY MM DD').format('MMM YYYY'))
+                        $("#dropdownMenuButton").addClass('dropdownAddClass')
+                    }
 
-            //         return !handler || handler(o[key], filters[key]);
-            //     }));
-            // }
+                    if (match.length == 0) {
+                        createChart(evidenceData, " ")
+                    } else if (match.length != 0 && countryValue == "" && categoryValue == "") {
+                        createChart(match, " - Between Dates")
+                    } else if (match.length != 0 && countryValue == "" && categoryValue != "") {
+                        createChart(match, " - Between Dates (" + categoryValue + ")")
+                    } else if (match.length != 0 && countryValue != "" && categoryValue == "") {
+                        createChart(match, " - Between Dates (" + countryValue + ")")
+                    } else {
+                        createChart(match, " - Between Dates (" + countryValue + ", " + categoryValue + ")")
+                    }
+                });
 
-            // const data = [{ "budget": "220", "categories": ["party", "school"] }, { "budget": "450", "categories": ["self"] }, { "budget": "600", "categories": ["dev", "work"] }];
+                // Add background-color class when the user has typed something in 
+                $('#searchInput').focus(function () {
+                    $(this).addClass("dropdownAddClass");
+                });
+                $('#searchInput').blur(function () {
+                    if (this.value === '') { $(this).removeClass("dropdownAddClass"); }
+                });
 
-            // const filters = { "budget": ["200", "500"], "categories": ["party"] };
 
-            // const result = applyFilters(data, filters);
 
+                // const filterHandlers = new Map([
+                //     [
+                //         'budget',
+                //         (val, [min, max]) => val >= min && val <= max
+                //     ],
+                //     [
+                //         'categories',
+                //         (current, categories) => current.some( // some - at least one, every - all of them 
+                //             (c) => categories.includes(c)
+                //         )
+                //     ],
+                //     []
+                // ]);
+
+                // const applyFilters = (arr, filters) => {
+                //     const filterKeys = Object.keys(filters);
+
+                //     return arr.filter(o => filterKeys.every((key) => {
+                //         const handler = filterHandlers.get(key);
+
+                //         return !handler || handler(o[key], filters[key]);
+                //     }));
+                // }
+
+                // const data = [{ "budget": "220", "categories": ["party", "school"] }, { "budget": "450", "categories": ["self"] }, { "budget": "600", "categories": ["dev", "work"] }];
+
+                // const filters = { "budget": ["200", "500"], "categories": ["party"] };
+
+                // const result = applyFilters(data, filters);
+            })
 
 
 

@@ -51,19 +51,22 @@ h1 {
     width: 66%;
     height: 100%;
     left: 34%;
-    top: -60px;
+    top: -40px;
     /* overflow: auto; */
     padding-left: 10px;
     padding-right: 10px;
     padding-top: 20px;
 }
 
+
+
 /* Search filter. Most of it is already in bootstrap. */
 .form-control {
     font-size: 12px;
     max-width: 100%;
     border: none;
-    background-color: #e6f2f8;
+    /* background-color: #e6f2f8; */
+    background-color: white;
     font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
 }
 
@@ -72,7 +75,8 @@ h1 {
     font-size: 12px;
     max-width: 100%;
     box-shadow: 0 0 0 0.25rem #cce5f2;
-    background-color: #e6f2f8;
+    /* background-color: #e6f2f8; */
+    background-color: white;
     color: #767676;
 }
 
@@ -115,6 +119,7 @@ h1 {
 .bootstrap-select>.dropdown-toggle.bs-placeholder:active {
     color: #999;
     background-color: white;
+    font-weight:400;
     border: none;
 }
 
@@ -137,11 +142,22 @@ h1 {
     outline-offset: -2px;
 }
 
+/* When the dropdown is selected */
+.dropdownRemoveClass {
+    background-color: white !important;
+}
+
+.dropdownAddClass {
+    background-color: #e6f2f8 !important;
+    color:#212529 !important;
+    font-weight:600;
+}
+
 /* Date Range */
 #myRangeSlider {
-    width:100%;
-    padding-left:10%;
-    padding-right:10%;
+    width: 100%;
+    padding-left: 10%;
+    padding-right: 10%;
 }
 
 .dropdown-menu.show {
@@ -154,37 +170,45 @@ h1 {
     right: 20px;
     top: 50%;
     margin-top: -5px;
-    font-size:20px;
+    font-size: 20px;
 }
 
 .btn-secondary {
-    font-size:12px;
+    font-size: 12px;
     color: #adadad;
-    background-color: #FFF;
+    background-color: white;
     border-color: #FFF;
     font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
-    width:100%;
-    text-align:left;
+    width: 100%;
+    text-align: left;
 }
 
 .btn-secondary:hover {
-    font-size:12px;
+    font-size: 12px;
     color: #adadad;
     background-color: #e6f2f8;
     font-family: 'Open Sans', 'Helvetica Neue', sans-serif, 'FontAwesome';
-    border:0px;
+    border: 0px;
 }
 
-.btn-secondary:not(:disabled):not(.disabled).active, .btn-secondary:not(:disabled):not(.disabled):active, .show>.btn-secondary.dropdown-toggle {
-    color: #fff;
-    font-size:12px;
+.btn-secondary:not(:disabled):not(.disabled).active,
+.btn-secondary:not(:disabled):not(.disabled):active,
+.show>.btn-secondary.dropdown-toggle {
+    font-size: 12px;
     color: #adadad;
-    background-color: #e6f2f8;
     border: 0px;
-    border-color:white;
+    border-color: white;
     box-shadow: 0 0 0 0rem rgb(255 255 255 / 100%);
 }
 
+/* When Country Selector and Category Selector are toggled */
+.bootstrap-select>.dropdown-toggle {
+    background-color:#e6f2f8;
+    font-weight:600;
+}
+
+
+/* Sliders */
 .irs--flat .irs-line {
     top: 25px;
     height: 6px;
@@ -276,11 +300,11 @@ h1 {
 .loading {
     position: absolute;
     top: 320px;
-    text-align:center;
-    padding-left:40%;
+    text-align: center;
+    padding-left: 40%;
     width: 100%;
-    font-size:20px;
-    color:#bbbbbb;
+    font-size: 20px;
+    color: #bbbbbb;
     z-index: -2;
 }
 
@@ -292,14 +316,14 @@ h1 {
 } */
 
 #myChart {
-    height:300px;
+    height: 300px;
     padding-left: 10px;
     border-bottom: 0px;
 }
 
 /* Table Options */
 table {
-    background-color:white;
+    background-color: white;
     font-size: 10px;
     padding-left: 10px;
     border-bottom: 0px;
@@ -311,6 +335,14 @@ table td {
     border-bottom: 0px;
     vertical-align: top;
     line-height: 250%;
+}
+
+.mydatatable tr:hover {
+    background-color: #f3f9fc;
+    cursor: pointer;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
 }
 
 .tableThumbnail {
@@ -364,13 +396,30 @@ thead {
 }
 
 .dataTables_info {
-    font-size: 12px;
-    color: #d6d6d6;
+    font: 10px 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 10px;
 }
 
 .dataTables_paginate {
-    font-size: 12px;
+    font-size: 10px;
     color: #d6d6d6;
+    margin: 10px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: white !important;
+    background-color: #80bede !important;
+    border: 0px;
+    /* border-radius: 50%; */
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    color: white !important;
+    background: #80bede !important;
+    border: 0px;
+    box-shadow: 0;
+    /* border-radius: 50%; */
 }
 
 a {
