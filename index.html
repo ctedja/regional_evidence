@@ -54,10 +54,6 @@
 
 
 <body>
-    <!-- <div class="title">
-        <h1>Regional Evidence</h1>
-    </div> -->
-
     <div class="filters">
         <div class="title">
             <span><img id="logo" src="logo.png" style="height:25px;" />
@@ -100,9 +96,23 @@
                 <select id="categorySelector" class="form-select selectpicker" data-width="100%" data-size="8"
                     name="country" data-dropdown>
                     <option value="">&#xf550;&nbsp;&nbsp;Category (All)</option>
-                    <option value="Situation Report">&nbsp;&nbsp;Situation Report</option>
-                    <option value="Market/Price Monitoring">&nbsp;&nbsp;Market/Price Monitoring</option>
                     <option value="Analysis/Research">&nbsp;&nbsp;Analysis/Research</option>
+                    <option value="Annual Country Report">&nbsp;&nbsp;Annual Country Report</option>
+                    <option value="Assessments (Food Security and Nutrition)">&nbsp;&nbsp;Assessments (Food Security and
+                        Nutrition)</option>
+                    <!-- <option value="Assessments (Multi-Sector)">&nbsp;&nbsp;Assessments (Multi-Sector)</option> -->
+                    <option value="Best Practices/Lessons Learned">&nbsp;&nbsp;Best Practices/Lessons Learned</option>
+                    <option value="Dashboards/Maps/Infographics">&nbsp;&nbsp;Dashboards/Maps/Infographics</option>
+                    <!-- <option value="Donor-Specific Reports">&nbsp;&nbsp;Donor-Specific Reports</option> -->
+                    <option value="Evaluations">&nbsp;&nbsp;Evaluations</option>
+                    <!-- <option value="Factsheets/Brochures">&nbsp;&nbsp;Factsheets/Brochures</option> -->
+                    <option value="Manual and Guideline">&nbsp;&nbsp;Manual and Guideline</option>
+                    <option value="Market/Price Monitoring">&nbsp;&nbsp;Market/Price Monitoring</option>
+                    <!-- <option value="Monitoring/Reviews">&nbsp;&nbsp;Monitoring/Reviews</option> -->
+                    <option value="Other">&nbsp;&nbsp;Other</option>
+                    <!-- <option value="Response Plans/Appeals">&nbsp;&nbsp;Response Plans/Appeals</option> -->
+                    <option value="Situation Report">&nbsp;&nbsp;Situation Report</option>
+                    <option value="Stories/Articles">&nbsp;&nbsp;Stories/Articles</option>
                 </select>
             </div>
             <br>
@@ -558,36 +568,6 @@
                 });
 
 
-
-                // const filterHandlers = new Map([
-                //     [
-                //         'budget',
-                //         (val, [min, max]) => val >= min && val <= max
-                //     ],
-                //     [
-                //         'categories',
-                //         (current, categories) => current.some( // some - at least one, every - all of them 
-                //             (c) => categories.includes(c)
-                //         )
-                //     ],
-                //     []
-                // ]);
-
-                // const applyFilters = (arr, filters) => {
-                //     const filterKeys = Object.keys(filters);
-
-                //     return arr.filter(o => filterKeys.every((key) => {
-                //         const handler = filterHandlers.get(key);
-
-                //         return !handler || handler(o[key], filters[key]);
-                //     }));
-                // }
-
-                // const data = [{ "budget": "220", "categories": ["party", "school"] }, { "budget": "450", "categories": ["self"] }, { "budget": "600", "categories": ["dev", "work"] }];
-
-                // const filters = { "budget": ["200", "500"], "categories": ["party"] };
-
-                // const result = applyFilters(data, filters);
             })
 
 
