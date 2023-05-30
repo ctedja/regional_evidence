@@ -4,34 +4,37 @@ import json
 import datetime
 from datetime import datetime
 import requests
+import numpy as np
 import ast
+
 # from flask import Flask, render_template, jsonify, render_template_string, request, flash
+
 
 # =============================================================================
 # Extract Data from API
 
 # Define the API query
 api_country_query = [
-  "Afghanistan",
-  "Bangladesh",
-  "Bhutan",
-  "Cambodia",
-  "Democratic%20People's%20Republic%20of%20Korea",
-  "Fiji",
-  "Indonesia",
-  "Kyrgyzstan",
-  "Lao%20People's%20Democratic%20Republic%20(the)",
-  "Myanmar",
-  "Nepal",
-  "Pakistan",
-  "Papua%20New%20Guinea",
-  "Philippines",
-  "Samoa",
-  "Sri%20Lanka",
-  "Tajikistan",
-  "Timor-Leste",
-  "Tonga",
-  "Tuvalu"
+    "Afghanistan",
+    "Bangladesh",
+    "Bhutan",
+    "Cambodia",
+    "Democratic%20People's%20Republic%20of%20Korea",
+    "Fiji",
+    "Indonesia",
+    "Kyrgyzstan",
+    "Lao%20People's%20Democratic%20Republic%20(the)",
+    "Myanmar",
+    "Nepal",
+    "Pakistan",
+    "Papua%20New%20Guinea",
+    "Philippines",
+    "Samoa",
+    "Sri%20Lanka",
+    "Tajikistan",
+    "Timor-Leste",
+    "Tonga",
+    "Tuvalu",
 ]
 
 api_country_query = "".join(
@@ -58,151 +61,160 @@ reliefweb_list = [
     item for reliefweb_raw in reliefweb_raws for item in reliefweb_raw.json()["data"]
 ]
 
+# Explore
+reliefweb_list[6]["fields"]["country"][0]["name"]
+
 
 # =============================================================================
-# Where it gets difficult
-
-# Explore
-reliefweb_list[6]['fields']['country'][0]['name']
-
-reliefweb_list[0]['fields']
-date = reliefweb_list[4]['fields']['country'][1]['name']
+# Transform the API's output into a dataframe
 
 # Normalize the list into a DataFrame
-test = pd.json_normalize(reliefweb_list, sep='_')
+df = pd.json_normalize(reliefweb_list, sep="_")
 
-# Further normalize the DataFrame, for those that also include lists
+
+# Create functions to normalize the DataFrame for those that are nested into lists, with comma separated values, or to extract the thumbnail which is nested deeper
 def extract_and_join(row, field_name):
     if isinstance(row, list) and all(isinstance(elem, dict) for elem in row):
-        return ', '.join([str(elem.get(field_name, '')) for elem in row])
+        return ", ".join([str(elem.get(field_name, "")) for elem in row])
     return row
 
-test['fields_country_name'] = test['fields_country'].apply(extract_and_join, field_name='name')
-test['fields_format'] = test['fields_country'].apply(extract_and_join, field_name='name')
-test.iloc[4]
 
-test['fields_category'] = pd.json_normalize(test['fields_format'].explode(), sep='_')['name']
-test.iloc[4]
-
-
-
-# ============================================================================= THIS IS WHAT I GOT UP TO
+def get_url_thumb(files):
+    if isinstance(files, list) and files:
+        first_file = files[0]  # access the first file dictionary
+        if isinstance(first_file, dict) and "preview" in first_file:
+            preview = first_file["preview"]  # access the 'preview' dictionary
+            if isinstance(preview, dict) and "url-thumb" in preview:
+                return preview["url-thumb"]  # return the 'url-thumb' value
 
 
-
-
-
-# See the number of rows
-test_fields_country = pd.json_normalize(test['fields_country'].explode(), sep='_')
-test_fields_country.head(8)
-len(test_fields_country)
-
-reliefweb_list[0]['fields']['country']
-
-# # Now let's flatten the data and create the DataFrame
-# flattened_data = [flatten_dict(record) for record in reliefweb_list]
-# flattened_data[1]
-# reliefweb_df = pd.DataFrame(flattened_data)
-# reliefweb_df.head(2)
-
-
-# Convert the list of dictionaries to a DataFrame
-reliefweb_df = pd.DataFrame(reliefweb_list)
-
-
-
-
-
-
-
-
-
-
-
-# Access a specific cell in reliefweb_df
-reliefweb_df.iloc[1]['fields']
-
-reliefweb_df['fields'] = reliefweb_df['fields'].apply(flatten)
-reliefweb_df = pd.json_normalize(reliefweb_df['fields'])
-reliefweb_df.columns.to_list()
-reliefweb_df.iloc[1]
-
-'date_changed': '2017-05-08T13:12:36+00:00', 
-'date_created': '2017-05-08T12:32:08+00:00', 
-'date_original': '2017-05-08T00:00:00+00:00', 
-'country_href': 'https://api.reliefweb.int/v1/countries/120', 
-'country_name': 'Indonesia', 
-'country_location_lon': 117.37, 
-'country_location_lat': -2.28, 
-'country_id': 120, 
-'country_shortname': 'Indonesia', 
-'country_iso3': 'idn', 
-'country_primary': True
-
-# ============================================================================= THIS IS WHAT I GOT UP TO
+# Extract for countries (where there are multiple), format (which is category), source (which is author), and thumbnail
+df["multiple_country_names"] = df["fields_country"].apply(
+    extract_and_join, field_name="name"
+)
+df["category"] = df["fields_format"].apply(extract_and_join, field_name="name")
+df["author"] = df["fields_source"].apply(extract_and_join, field_name="shortname")
+df["thumb"] = df["fields_file"].apply(get_url_thumb)
 
 # Extract needed columns and rename them
-extracted_df = json_df[['date.created', 
-                        'primary_country.name', 
-                        'format',
-                        # Category
-                        # 'format.name', 
-                        # Author
-                        # 'source.shortname',
-                        'title', 
-                        'origin', 
-                        'url', 
-                        'body', 
-                        # 'url_alias', 
-                        # 'file.preview.url.thumb'
-                        ]]
+df = df[
+    [
+        "fields_date_created",
+        "fields_primary_country_name",
+        "category",
+        "author",
+        "fields_title",
+        "fields_origin",
+        "fields_url_alias",
+        "fields_body",
+        "thumb",
+    ]
+]
 
-extracted_df.columns = ['Date', 'Country', 'Category', 'Author', 'Title', 'Origin_Link', 'Alt_Link',
-                        'Summary', 'Link', 'Image']
+df.columns = [
+    "date",
+    "country",
+    "category",
+    "author",
+    "title",
+    "origin_link",
+    "alt_link",
+    "summary",
+    "thumb",
+]
 
-# Concatenate the new DataFrame with the original one
-reliefweb_df = pd.concat([reliefweb_df, extracted_df], axis=1)
 
-# Drop the json_data column as it's no longer needed
-reliefweb_df = reliefweb_df.drop('json_data', axis=1)
+# =============================================================================
+# Clean the dataframe
 
+# Convert to datetime (and remove timezone)
+df["date"] = pd.to_datetime(df["date"]).dt.tz_localize(None)
 
+# Rename certain categories
+df["category"] = df["category"].fillna("")
+df["category"] = np.select(
+    [
+        # Where it is a certain word
+        (df["category"] == "Map"),
+        (df["category"] == "Infographic"),
+        (df["category"] == "Evaluation and Lessons Learned"),
+        (df["category"] == "Assessment"),
+        (df["category"] == "Analysis"),
+        (df["category"] == "News and Press Release"),
+        (df["category"] == "Appeal"),
+        # Where it contains certain words
+        df["title"].str.contains("market", case=False, na=False),
+        df["title"].str.contains("price", case=False, na=False),
+        df["title"].str.contains("annual country report", case=False, na=False),
+    ],
+    [
+        "Dashboards/Maps/Infographics",
+        "Dashboards/Maps/Infographics",
+        "Evaluations",
+        "Assessments (Food Security and Nutrition)",
+        "Analysis/Research",
+        "Stories/Articles",
+        "Response Plans/Appeals",
+        "Market/Price Monitoring",
+        "Market/Price Monitoring",
+        "Annual Country Report",
+    ],
+    default=df["category"],
+)
 
+# Rename certain countries to match the spatial dataset
+df["country"] = np.select(
+    [
+        (df["country"] == "Lao People's Democratic Republic (the)"),
+        (df["country"] == "American Samoa"),
+    ],
+    [
+        "Lao People's Democratic Republic",
+        "Samoa",
+    ],
+    default=df["country"],
+)
 
-# Select the desired columns and rename them
-reliefweb_df = reliefweb_df[['fields.date.created', 'fields.primary_country.name', 'fields.format.name', 
-                             'fields.source.shortname', 'fields.title', 'fields.origin', 
-                             'fields.file.url', 'fields.body', 'fields.url_alias', 
-                             'fields.file.preview.url.thumb']].copy()
-
+# Note #1: In R, I removed certain text from summary, but not sure it's needed here mutate(Summary = gsub("\\*", "", Summary))
+# Note #2: In R, I joined the manual dataset but it's not needed here.
+# Note #3: In R, I included subnational designations based on the title, but it's not needed here
 
 # =============================================================================
 # Manual Extraction from Excel File
-evidence_dataset = pd.read_excel('evidence_dataset.xlsx')
+evidence_dataset = pd.read_excel("evidence_dataset.xlsx")
+evidence_dataset = pd.DataFrame(evidence_dataset)
+evidence_dataset.info()
+
+evidence_dataset = evidence_dataset.filter(
+    ["Country", "Title", "Category", "Date", "Link", "Image"]
+)
+
 
 evidence_dataset.info()
-evidence_dataset = pd.DataFrame(evidence_dataset)
-evidence_dataset = evidence_dataset.filter(['Country', 'Title', 'Category', 'Date', 'Link', 'Image'])
-evidence_dataset = evidence_dataset.drop_duplicates(keep='first')
+
+
+evidence_dataset = evidence_dataset.drop_duplicates(keep="first")
 # evidence_dataset['Date'] = evidence_dataset['Date'].dt.date
-evidence_dataset['Date'] = evidence_dataset['Date'].dt.strftime('%Y-%m-%d')
-evidence_dataset = evidence_dataset.sort_values(by=['Date', 'Country'])
-evidence_dataset['Image'] = evidence_dataset['Image'].fillna('https://raw.githubusercontent.com/ctedja/evidence_app/main/static/images/empty.png')
+evidence_dataset["Date"] = evidence_dataset["Date"].dt.strftime("%Y-%m-%d")
+evidence_dataset = evidence_dataset.sort_values(by=["Date", "Country"])
+evidence_dataset["Image"] = evidence_dataset["Image"].fillna(
+    "https://raw.githubusercontent.com/ctedja/evidence_app/main/static/images/empty.png"
+)
 evidence_dataset = evidence_dataset.fillna("")
-records = evidence_dataset.to_dict(orient='records')
+records = evidence_dataset.to_dict(orient="records")
 
 # Create new dictionary with desired structure
-data = {'data': records}
+data = {"data": records}
 
 # Dump dictionary to json file
-with open('data.json', 'w') as f:
+with open("data.json", "w") as f:
     json.dump(data, f)
 
 # evidence_dataset.to_json(path_or_buf="data3.json", orient='values')
 
-d = {"data": evidence_dataset.to_dict('records')}
+d = {"data": evidence_dataset.to_dict("records")}
 with open("data.json", "w") as f:
     json.dump(d, f, default=str)
 
-#evidence_dataset = evidence_dataset.to_json(orient='values')
+# evidence_dataset = evidence_dataset.to_json(orient='values')
 evidence_dataset = evidence_dataset.values.tolist()
