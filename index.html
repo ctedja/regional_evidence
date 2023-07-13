@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
+    <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.js"
         integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
 
@@ -45,7 +46,7 @@
     <link href="styles.css" rel="stylesheet" />
 
     <!-- ChartJS -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
 </head>
 
@@ -80,8 +81,8 @@
                     <option value="DPRK">&nbsp;&nbsp;DPRK</option>
                     <option value="India">&nbsp;&nbsp;India</option>
                     <option value="Indonesia">&nbsp;&nbsp;Indonesia</option>
-                    <option value="Kyrgyz Republic">&nbsp;&nbsp;Kyrgyz Republic</option>
-                    <option value="Laos">&nbsp;&nbsp;Laos</option>
+                    <option value="Kyrgyzstan">&nbsp;&nbsp;Kyrgyz Republic</option>
+                    <option value="Lao People's Democratic Republic">&nbsp;&nbsp;Laos</option>
                     <option value="Myanmar">&nbsp;&nbsp;Myanmar</option>
                     <option value="Nepal">&nbsp;&nbsp;Nepal</option>
                     <option value="Pacific">&nbsp;&nbsp;Pacific</option>
@@ -238,12 +239,12 @@
                     }],
                 });
 
-                // Quick configuration - datatable clickable
+                // Quick configuration - make datatable clickable
                 oTable.on('click', 'tr', function (data, type, row) {
                     window.open(oTable.row(this).data().Link, '_blank');
                 });
 
-                // Quick configuration - datatable scroll on paginate button
+                // Quick configuration - make datatable scroll on paginate button
                 oTable.on('page.dt', function () {
                     $('html, body').animate({
                         scrollTop: $(".dataTables_wrapper").offset().top
@@ -267,12 +268,20 @@
                     }
                 );
 
-                
-
                 // Search filter: Enable the search filter
-                $('#searchInput').keyup(function () {
+                $('#searchInput').on('keyup', function () {
                     oTable.search($(this).val()).draw();
                 });
+
+                // Add background-color class when the user has typed something in 
+                $('#searchInput').on('focus', function () {
+                    $(this).addClass("dropdownAddClass");
+                });
+
+                $('#searchInput').on('blur', function () {
+                    if (this.value === '') { $(this).removeClass("dropdownAddClass"); }
+                });
+
 
                 // Country selector: Enable the country selector
                 $('select#countrySelector').change(function () {
@@ -294,10 +303,6 @@
                     oTable.columns(4).draw();
                 });
 
-
-
-
-                // buildTable(evidenceData)
                 // Getting Range Slider Elements
                 var $range = $(".js-range-slider"),
                     $inputFrom = $(".js-input-from"),
@@ -355,217 +360,6 @@
                     instance.update({
                         to: val
                     });
-                });
-
-
-
-
-                // Create our Chart
-                function createChart(chartData, searchedName = "", animationTrigger = true) {
-
-                    // Remove first
-                    let chartStatus = Chart.getChart("myChart");
-                    if (chartStatus != undefined) {
-                        chartStatus.destroy();
-                    }
-
-
-                    var countryCount = chartData.map(function (d) { return d.Country; });
-
-
-                    var monthCount = chartData.map(function (d) {
-                        var date = moment(d.Date).startOf('month').format('MMM YY').toString();
-                        return date;
-                    });
-
-                    // Count number for each unique value
-                    function searchFunction(searchCriteria) {
-                        var count = chartData.filter(function (d) {
-                            if (moment(d.Date).startOf('month').format('MMM YY').toString() === searchCriteria) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }).length;
-                        return count;
-                    }
-
-                    // Get just the number of unique values, and then reverse the order
-                    var uniqueMonth = [... new Set(monthCount)].filter(item => item != "Invalid date")
-
-
-                    // Use our searchFunction function to count the total number of values for each unique month/year
-                    var values = uniqueMonth.map(searchFunction)
-
-
-                    // Building the Chart
-                    const data = {
-                        labels: uniqueMonth,
-                        datasets: [{
-                            backgroundColor: '#cce5f2',
-                            borderColor: '#cce5f2',
-                            data: values,
-                        }]
-                    };
-
-                    const config = {
-                        type: 'bar',
-                        data: data,
-                        options: {
-                            animation: animationTrigger,
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: false
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'WFP products ' + searchedName,
-                                    align: 'start',
-                                    padding: {
-                                        top: 10,
-                                        bottom: 30
-                                    }
-                                }
-                            }
-                        }
-                    };
-
-                    const myChart = new Chart(
-                        document.getElementById('myChart'),
-                        config
-                    );
-                }
-
-
-                createChart(evidenceData.data)
-
-
-
-
-
-                
-                // Make the country selector work for the chart
-                $('select#countrySelector').on('change', function (e) {
-                    var minDate = moment($('#min').val()).format('YY MM DD');
-                    var maxDate = moment($('#max').val()).format('YY MM DD');
-                    var countryValue = this.value;
-                    var categoryValue = $('select#categorySelector').val();
-
-                    const match = evidenceData.data.filter(countryArr => countryArr.Country === countryValue &&
-                        (countryArr.Category === categoryValue || isNaN(countryArr.Category)) &&
-                        (moment(countryArr.Date).format('YY MM DD') <= maxDate || isNaN(countryArr.Date)) &&
-                        (moment(countryArr.Date).format('YY MM DD') >= minDate || isNaN(countryArr.Date)));
-
-                    if (match.length == 0) {
-                        createChart(evidenceData.data, " ")
-
-                    } else if (match.length != 0 && countryValue != "" && maxDate == "" && categoryValue == "") {
-                        createChart(match, " (" + countryValue + ")")
-
-                    } else if (match.length != 0 && countryValue == "" && maxDate == "" && categoryValue != "") {
-                        createChart(match, " (" + categoryValue + ")")
-
-                    } else if (match.length != 0 && countryValue != "" && maxDate == "" && categoryValue != "") {
-                        createChart(match, " (" + countryValue + ", " + categoryValue + ")")
-
-                    } else if (match.length != 0 && countryValue == "" && maxDate != "" && categoryValue == "") {
-                        createChart(match, "- Between Dates")
-
-                    } else if (match.length != 0 && countryValue != "" && maxDate != "" && categoryValue == "") {
-                        createChart(match, "- Between Dates (" + countryValue + ")")
-
-                    } else if (match.length != 0 && countryValue == "" && maxDate != "" && categoryValue != "") {
-                        createChart(match, "- Between Dates (" + categoryValue + ")")
-
-                    } else {
-                        createChart(match, "- Between Dates (" + countryValue + ", " + categoryValue + ")")
-                    }
-                });
-
-
-                $('select#categorySelector').on('change', function (e) {
-                    var minDate = moment($('#min').val()).format('YY MM DD');
-                    var maxDate = moment($('#max').val()).format('YY MM DD');
-                    var categoryValue = this.value;
-                    var countryValue = $('select#countrySelector').val();
-
-                    const match = evidenceData.data.filter(countryArr => countryArr.Category === categoryValue &&
-                        (countryArr.Country === countryValue || isNaN(countryArr.Country)) &&
-                        (moment(countryArr.Date).format('YY MM DD') <= maxDate || isNaN(countryArr.Date)) &&
-                        (moment(countryArr.Date).format('YY MM DD') >= minDate || isNaN(countryArr.Date)));
-
-                    if (match.length == 0) {
-                        createChart(evidenceData.data, " ")
-
-                    } else if (match.length != 0 && countryValue != "" && maxDate == "" && categoryValue == "") {
-                        createChart(match, " (" + countryValue + ")")
-
-                    } else if (match.length != 0 && countryValue == "" && maxDate == "" && categoryValue != "") {
-                        createChart(match, " (" + categoryValue + ")")
-
-                    } else if (match.length != 0 && countryValue != "" && maxDate == "" && categoryValue != "") {
-                        createChart(match, " (" + countryValue + ", " + categoryValue + ")")
-
-                    } else if (match.length != 0 && countryValue == "" && maxDate != "" && categoryValue == "") {
-                        createChart(match, "- Between Dates")
-
-                    } else if (match.length != 0 && countryValue != "" && maxDate != "" && categoryValue == "") {
-                        createChart(match, "- Between Dates (" + countryValue + ")")
-
-                    } else if (match.length != 0 && countryValue == "" && maxDate != "" && categoryValue != "") {
-                        createChart(match, "- Between Dates (" + categoryValue + ")")
-
-                    } else {
-                        createChart(match, "- Between Dates (" + countryValue + ", " + categoryValue + ")")
-                    }
-                });
-
-
-                // Make the Range Slider
-                $("#myRangeSlider").on("mouseup", function () {
-                    var minDate = moment($('#min').val()).format('YY MM DD');
-                    var maxDate = moment($('#max').val()).format('YY MM DD');
-                    var countryValue = $('select#countrySelector').val();
-                    var categoryValue = $('select#categorySelector').val();
-
-                    const match = evidenceData.data.filter(countryArr =>
-                        moment(countryArr.Date).format('YY MM DD') <= maxDate &&
-                        moment(countryArr.Date).format('YY MM DD') >= minDate &&
-                        (countryArr.Country === countryValue || isNaN(countryArr.Country)) &&
-                        (countryArr.Category === categoryValue || isNaN(countryArr.Category)));
-
-                    // This doesn't work
-                    var dateText = document.getElementById('dropdownMenuButton')
-
-                    if (match.length == 0) {
-                        dateText.innerHTML = 'Date'
-                        $("#dropdownMenuButton").removeClass('dropdownAddClass')
-                    } else {
-                        dateText.innerHTML = (moment(minDate, 'YY MM DD').format('MMM YYYY') + ' to ' + moment(maxDate, 'YY MM DD').format('MMM YYYY'))
-                        $("#dropdownMenuButton").addClass('dropdownAddClass')
-                    }
-
-                    if (match.length == 0) {
-                        createChart(evidenceData, " ")
-                    } else if (match.length != 0 && countryValue == "" && categoryValue == "") {
-                        createChart(match, " - Between Dates")
-                    } else if (match.length != 0 && countryValue == "" && categoryValue != "") {
-                        createChart(match, " - Between Dates (" + categoryValue + ")")
-                    } else if (match.length != 0 && countryValue != "" && categoryValue == "") {
-                        createChart(match, " - Between Dates (" + countryValue + ")")
-                    } else {
-                        createChart(match, " - Between Dates (" + countryValue + ", " + categoryValue + ")")
-                    }
-                });
-
-                // Add background-color class when the user has typed something in 
-                $('#searchInput').focus(function () {
-                    $(this).addClass("dropdownAddClass");
-                });
-                $('#searchInput').blur(function () {
-                    if (this.value === '') { $(this).removeClass("dropdownAddClass"); }
                 });
 
             })

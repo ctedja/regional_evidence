@@ -33,6 +33,7 @@ api_country_query = [
     "Democratic%20People's%20Republic%20of%20Korea",
     "Fiji",
     "Indonesia",
+    "India",
     "Kyrgyzstan",
     "Lao%20People's%20Democratic%20Republic%20(the)",
     "Myanmar",
@@ -208,10 +209,32 @@ rw_df["thumb"] = rw_df["thumb"].fillna(
 rw_df = rw_df.fillna("")
 rw_df["date"] = pd.to_datetime(rw_df["date"])
 
+# Update the country names in certain cases as needed
+rw_df["country"] = rw_df.apply(
+    lambda x: "Asia-Pacific" if "asia" in x["title"].lower() else x["country"],
+    axis=1,
+)
+
+rw_df["country"] = rw_df["country"].apply(
+    lambda x: "Pacific"
+    if any(
+        country.strip() in ["Fiji", "Samoa", "Tonga", "Tuvalu", "Papua New Guinea"]
+        for country in x.split(",")
+    )
+    else x
+)
+
+# Remove any duplicates in the comma-separated column of countries
+rw_df["country"] = rw_df["country"].apply(
+    lambda x: ', '.join(sorted(set(country.strip() for country in x.split(','))))
+)
+
+
 # Where origin_link == "", replace with reliefweb_link
 rw_df["link"] = rw_df.apply(
-    lambda x: 
-    x["reliefweb_link"] if x["origin_link"] == "" else x["origin_link"], axis = 1)
+    lambda x: x["reliefweb_link"] if x["origin_link"] == "" else x["origin_link"],
+    axis=1,
+)
 
 
 
@@ -226,19 +249,11 @@ rw_df["link"] = rw_df.apply(
 # evidence_dataset.info()
 
 
-
-
-
-
-
-
-
-
 # =============================================================================
 
 # 4.0 Scrape publications on wfp.org/publications
 # -------------------------------------------
-
+start_time = time.time()
 # Define the maximum number of pages to scrape.
 max_page_num = 100
 documents = []
@@ -287,10 +302,6 @@ for page_num in range(max_page_num):
         documents.append(doc)
 
 
-
-
-
-
 # Convert the list of dictionaries to a dataframe
 pub_df = pd.DataFrame(documents)
 
@@ -306,7 +317,7 @@ pub_df["category"] = np.select(
         pub_df["title"].str.contains("analysis", case=False, na=False),
         pub_df["title"].str.contains("research", case=False, na=False),
         pub_df["title"].str.contains("evidence", case=False, na=False),
-        pub_df["title"].str.contains("study", case=False, na=False),        
+        pub_df["title"].str.contains("study", case=False, na=False),
         pub_df["title"].str.contains("annual country report", case=False, na=False),
         pub_df["title"].str.contains("situation report", case=False, na=False),
         pub_df["title"].str.contains("lesson", case=False, na=False),
@@ -322,11 +333,17 @@ pub_df["category"] = np.select(
         pub_df["title"].str.contains("fill the nutrient", case=False, na=False),
         pub_df["title"].str.contains("understanding", case=False, na=False),
         pub_df["title"].str.contains("food security monitoring", case=False, na=False),
-        pub_df["title"].str.contains("food security bulletin", case=False, na=False),        
+        pub_df["title"].str.contains("food security bulletin", case=False, na=False),
         # Where the category contains certain words
-        pub_df["category"].str.contains("Food security analysis (VAM)", case=False, na=False),
-        pub_df["category"].str.contains("Achievements and history", case=False, na=False),
-        pub_df["category"].str.contains("Analyses and assessments", case=False, na=False),
+        pub_df["category"].str.contains(
+            "Food security analysis (VAM)", case=False, na=False
+        ),
+        pub_df["category"].str.contains(
+            "Achievements and history", case=False, na=False
+        ),
+        pub_df["category"].str.contains(
+            "Analyses and assessments", case=False, na=False
+        ),
         pub_df["category"].str.contains("Monitoring", case=False, na=False),
         pub_df["category"].str.contains("Market analysis", case=False, na=False),
         pub_df["category"].str.contains("evaluation", case=False, na=False),
@@ -373,6 +390,7 @@ pub_df["category"] = np.select(
 country_names = rw_df.country.unique().tolist()
 country_names.extend(["Pacific", "Asia", "Lao", "Kyrgyz", "Korea", "DPR", "PNG"])
 
+
 # Filter our dataset to only include documents that contain a country name
 pub_df["country"] = pub_df["country"].str.replace(", ", ",")
 pub_df = pub_df[
@@ -384,39 +402,68 @@ pub_df = pub_df[
 # A function to remove all countries that aren't in our list
 def filter_countries(row, country_names):
     # Split the string into a list of countries
-    countries = row.split(',')
+    countries = row.split(",")
 
     # Filter the list to only include countries in country_names
-    filtered_countries = [country.strip() for country in countries if country.strip() in country_names]
+    filtered_countries = [
+        country.strip() for country in countries if country.strip() in country_names
+    ]
 
     # Join the list back into a comma-separated string
-    return ', '.join(filtered_countries)
+    return ", ".join(filtered_countries)
 
-pub_df["country"] = pub_df["country"].apply(filter_countries, country_names=country_names)
+
+pub_df["country"] = pub_df["country"].apply(
+    filter_countries, country_names=country_names
+)
 
 
 # Fill blank country values with the country name in the title
 def get_country_from_title(title):
     matches = [country for country in country_names if country.lower() in title.lower()]
-    return ', '.join(matches) if matches else np.nan
+    return ", ".join(matches) if matches else np.nan
 
-
-pub_df['country'] = pub_df.apply(
-    lambda x: 
-    get_country_from_title(x['title']) if x['country']=="" else x['country'],
-    axis=1
+pub_df["country"] = pub_df.apply(
+    lambda x: get_country_from_title(x["title"])
+    if x["country"] == ""
+    else x["country"],
+    axis=1,
 )
+
+
+# Update the country names in certain cases as needed
+pub_df["country"] = pub_df.apply(
+    lambda x: 
+    "Asia-Pacific" if "asia" in x["title"].lower() else x["country"],
+    axis=1,
+)
+
+pub_df["country"] = pub_df["country"].apply(
+    lambda x: "Pacific"
+    if any(
+        country.strip() in ["Fiji", "Samoa", "Tonga", "Tuvalu", "Papua New Guinea"]
+        for country in x.split(",")
+    )
+    else x
+)
+
+# Remove any duplicates in the comma-separated column of countries
+pub_df["country"] = pub_df["country"].apply(
+    lambda x: ', '.join(sorted(set(country.strip() for country in x.split(','))))
+)
+
+
+end_time = time.time()
+(end_time - start_time)/60
+
 
 # Format as date
 pub_df["date"] = pd.to_datetime(pub_df["date"]).dt.tz_localize(None)
 
+# Update the thumbnail links when there's no image to a default image
 pub_df["thumb"] = pub_df["thumb"].fillna(
     "https://raw.githubusercontent.com/ctedja/regional_evidence/main/static/images/empty_link.png"
 )
-
-
-
-
 
 
 # =============================================================================
@@ -424,9 +471,7 @@ pub_df["thumb"] = pub_df["thumb"].fillna(
 # 5.0. Preparing Data to be used as JSON
 # --------------------------------------
 # Additional filter for JSON - we don't need author, origin_link, summary
-evidence_df = rw_df.filter(
-    ["country", "title", "category", "date", "link", "thumb"]
-)
+evidence_df = rw_df.filter(["country", "title", "category", "date", "link", "thumb"])
 
 # Warning, this next line is not needed
 pub_df = pub_df[pub_df.drop(columns=["page_number"]).columns]
@@ -444,18 +489,17 @@ evidence_df.to_excel("evidence.xlsx", index=False)
 
 # Edit column names
 evidence_df = evidence_df.rename(
-    columns=
-    {"date": "Date",
-     "country": "Country",
-     "title": "Title",
-     "category": "Category",
-     "link": "Link",
-     "thumb": "Image"}
-    )
-
+    columns={
+        "date": "Date",
+        "country": "Country",
+        "title": "Title",
+        "category": "Category",
+        "link": "Link",
+        "thumb": "Image",
+    }
+)
 
 evidence_df.Category.sort_values().unique()
-
 
 
 # =============================================================================
@@ -471,7 +515,6 @@ data = {"data": records}
 # Dump dictionary to json file - only if we are working on that separate exported file
 with open("data.json", "w") as f:
     json.dump(data, f, default=str)
-
 
 # evidence_dataset.to_json(path_or_buf="data3.json", orient='values')
 # evidence_dataset = evidence_dataset.to_json(orient='values')
