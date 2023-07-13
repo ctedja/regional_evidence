@@ -152,11 +152,33 @@ rw_df["category"] = rw_df["category"].fillna("")
 rw_df["category"] = np.select(
     [
         # Where it contains certain words
+        # Where it contains certain words
+        rw_df["title"].str.contains("evaluation", case=False, na=False),
+        rw_df["title"].str.contains("assess", case=False, na=False),
+        rw_df["title"].str.contains("survey", case=False, na=False),
         rw_df["title"].str.contains("market", case=False, na=False),
         rw_df["title"].str.contains("price", case=False, na=False),
+        rw_df["title"].str.contains("analysis", case=False, na=False),
+        rw_df["title"].str.contains("research", case=False, na=False),
+        rw_df["title"].str.contains("evidence", case=False, na=False),
+        rw_df["title"].str.contains("study", case=False, na=False),
         rw_df["title"].str.contains("annual country report", case=False, na=False),
-        rw_df["title"].str.contains("evaluation", case=False, na=False),
+        rw_df["title"].str.contains("situation report", case=False, na=False),
+        rw_df["title"].str.contains("lesson", case=False, na=False),
+        rw_df["title"].str.contains("manual", case=False, na=False),
+        rw_df["title"].str.contains("guideline", case=False, na=False),
+        rw_df["title"].str.contains("dashboard", case=False, na=False),
+        rw_df["title"].str.contains("map", case=False, na=False),
+        rw_df["title"].str.contains("infographic", case=False, na=False),
         rw_df["title"].str.contains("country brief", case=False, na=False),
+        rw_df["title"].str.contains("seasonal monitor", case=False, na=False),
+        rw_df["title"].str.contains("mvam", case=False, na=False),
+        rw_df["title"].str.contains("fact", case=False, na=False),
+        rw_df["title"].str.contains("fill the nutrient", case=False, na=False),
+        rw_df["title"].str.contains("understanding", case=False, na=False),
+        rw_df["title"].str.contains("food security monitoring", case=False, na=False),
+        rw_df["title"].str.contains("food security update", case=False, na=False),
+        rw_df["title"].str.contains("food security bulletin", case=False, na=False),
         # Where it is a certain word
         (rw_df["category"] == "Map"),
         (rw_df["category"] == "Infographic"),
@@ -164,24 +186,48 @@ rw_df["category"] = np.select(
         (rw_df["category"] == "Assessment"),
         (rw_df["category"] == "Analysis"),
         (rw_df["category"] == "News and Press Release"),
-        (rw_df["category"] == "Appeal"),
+        (rw_df["category"] == "Response Plans/Appeals")
     ],
     [
-        "Market/Price Monitoring",
-        "Market/Price Monitoring",
-        "Annual Country Report",
+        # Where title contains certain words
         "Evaluation and Lessons Learned",
+        "Assessments (Food Security and Nutrition)",
+        "Assessments (Food Security and Nutrition)",
+        "Market/Price Monitoring",
+        "Market/Price Monitoring",
+        "Analysis/Research",
+        "Analysis/Research",
+        "Analysis/Research",
+        "Analysis/Research",
+        "Annual Country Report",
+        "Situation Report",
+        "Evaluation and Lessons Learned",
+        "Manuals/Guidelines",
+        "Manuals/Guidelines",
+        "Dashboards/Maps/Infographics",
+        "Dashboards/Maps/Infographics",
+        "Dashboards/Maps/Infographics",
         "Country Brief",
+        "Assessments (Food Security and Nutrition)",
+        "Assessments (Food Security and Nutrition)",
+        "Dashboards/Maps/Infographics",
+        "Assessments (Food Security and Nutrition)",
+        "Analysis/Research",
+        "Assessments (Food Security and Nutrition)",
+        "Assessments (Food Security and Nutrition)",
+        "Assessments (Food Security and Nutrition)",
+        # Where category is a certain word
         "Dashboards/Maps/Infographics",
         "Dashboards/Maps/Infographics",
         "Evaluation and Lessons Learned",
         "Assessments (Food Security and Nutrition)",
         "Analysis/Research",
         "Stories/Articles",
-        "Response Plans/Appeals",
+        "Other",
     ],
     default=rw_df["category"],
 )
+
 
 # Rename certain countries to match the spatial dataset
 rw_df["country"] = np.select(
@@ -249,11 +295,16 @@ rw_df["link"] = rw_df.apply(
 # evidence_dataset.info()
 
 
+
+
+
+
+
 # =============================================================================
 
 # 4.0 Scrape publications on wfp.org/publications
 # -------------------------------------------
-start_time = time.time()
+
 # Define the maximum number of pages to scrape.
 max_page_num = 100
 documents = []
@@ -333,6 +384,7 @@ pub_df["category"] = np.select(
         pub_df["title"].str.contains("fill the nutrient", case=False, na=False),
         pub_df["title"].str.contains("understanding", case=False, na=False),
         pub_df["title"].str.contains("food security monitoring", case=False, na=False),
+        pub_df["title"].str.contains("food security update", case=False, na=False),
         pub_df["title"].str.contains("food security bulletin", case=False, na=False),
         # Where the category contains certain words
         pub_df["category"].str.contains(
@@ -373,6 +425,7 @@ pub_df["category"] = np.select(
         "Dashboards/Maps/Infographics",
         "Assessments (Food Security and Nutrition)",
         "Analysis/Research",
+        "Assessments (Food Security and Nutrition)",
         "Assessments (Food Security and Nutrition)",
         "Assessments (Food Security and Nutrition)",
         # In category
@@ -473,9 +526,6 @@ pub_df["thumb"] = pub_df["thumb"].fillna(
 # Additional filter for JSON - we don't need author, origin_link, summary
 evidence_df = rw_df.filter(["country", "title", "category", "date", "link", "thumb"])
 
-# Warning, this next line is not needed
-pub_df = pub_df[pub_df.drop(columns=["page_number"]).columns]
-
 # Append pub_df onto evidence_df
 evidence_df = evidence_df.append(pub_df, ignore_index=True)
 
@@ -501,6 +551,7 @@ evidence_df = evidence_df.rename(
 
 evidence_df.Category.sort_values().unique()
 
+evidence_df[evidence_df.Category == "Country Brief"]
 
 # =============================================================================
 
