@@ -190,7 +190,7 @@
                         {
                             data: null,
                             render: function (data, type, row) {
-                                return ('<br><a href="' + row.Link + '" target="_blank"><img class="tableThumbnail" src=' + row.Image + '><br><br>');
+                                return ('<br><img class="tableThumbnail" src=' + row.Image + '><br><br>');
                             }
                         },
                         // Column 1. Render the text details of the row
@@ -198,7 +198,7 @@
                             data: null,
                             render: function (data, type, row) {
                                 var formattedDate = moment(row.Date).format('dddd, D MMMM YYYY');
-                                return ('<span class="tableTitle"><br><a href="' + row.Link + '" target="_blank">' + row.Title + '</a><br></span>' +
+                                return ('<span class="tableTitle"><br>' + row.Title + '<br></span>' +
                                     '<span class="tableCountry"><span>&nbsp;&nbsp;' + row.Country + '&nbsp;&nbsp;</span></span>&nbsp;&nbsp' +
                                     '<span class="tableCategory">&nbsp;&nbsp;' + row.Category + '&nbsp;&nbsp;</span>' +
                                     '<span class="tableDate"><span><br>&nbsp;&nbsp;<i class="far fa-calendar"></i>&nbsp;&nbsp;' + formattedDate + '</span></span>');
