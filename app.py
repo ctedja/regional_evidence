@@ -506,8 +506,6 @@ pub_df["country"] = pub_df["country"].apply(
 )
 
 
-end_time = time.time()
-(end_time - start_time)/60
 
 
 # Format as date
@@ -562,6 +560,10 @@ records = evidence_df.to_dict(orient="records")
 
 # Create new dictionary with desired structure
 data = {"data": records}
+
+
+end_time = time.time()
+(end_time - start_time)/60
 
 # Dump dictionary to json file - only if we are working on that separate exported file
 with open("data.json", "w") as f:
