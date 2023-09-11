@@ -16,7 +16,6 @@ import ast
 # def hello_world():
 #     return 'Hello, World!'
 
-
 # =============================================================================
 
 # 1.0. Read the reliefweb data
@@ -547,9 +546,9 @@ evidence_df = evidence_df.rename(
     }
 )
 
-evidence_df.Category.sort_values().unique()
 
-evidence_df[evidence_df.Category == "Country Brief"]
+
+
 
 # =============================================================================
 
