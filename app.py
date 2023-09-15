@@ -67,7 +67,7 @@ session = Session()
 reliefweb_raws = []
 for api_url in api_urls:
     try:
-        response = requests.get(api_url, timeout=180)
+        response = requests.get(api_url)
         reliefweb_raws.append(response)
     except requests.exceptions.Timeout:
         print(f"Timeout occurred for URL: {api_url}")

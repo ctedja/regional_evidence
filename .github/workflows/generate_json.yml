@@ -2,7 +2,7 @@ name: Run app.py and Commit data.json
 
 on:
   schedule:
-      - cron: '25 * * * 5' 
+      - cron: '14 * * * 5' 
 
 jobs:
   build:
