@@ -18,7 +18,6 @@ import ast
 
 # =============================================================================
 
-# 1.0. Read the reliefweb data
 # --------------
 start_time = time.time()
 # Extract Data from API
@@ -55,15 +54,23 @@ api_country_query = "".join(
 
 base_url = "https://api.reliefweb.int/v1/reports?appname=apidoc&profile=full&limit=1000&filter[operator]=AND&filter[conditions][0][operator]=OR"
 
-years = list(range(2017, 2024))
+years = list(range(2016, 2024))
 
 api_urls = [
     f"{base_url}{api_country_query}&filter[conditions][1][field]=date.created&filter[conditions][1][value][from]={year}-01-01T00:00:00%2B00:00&filter[conditions][1][value][to]={year}-12-31T23:59:59%2B00:00&filter[conditions][2][field]=source.shortname&filter[conditions][2][value]=WFP"
     for year in years
 ]
 
-# Now load the APIs here. We have to build multiple because the limit for this API is 1,000.
-reliefweb_raws = [requests.get(api_url) for api_url in api_urls]
+# Now load the APIs here. We have to build multiple because the limit for this API is 1,000. Include the session as a retry mechanism to ensure that we don't get blocked.
+session = Session()
+reliefweb_raws = []
+for api_url in api_urls:
+    try:
+        response = requests.get(api_url, timeout=180)
+        reliefweb_raws.append(response)
+    except requests.exceptions.Timeout:
+        print(f"Timeout occurred for URL: {api_url}")
+
 
 # Ensure that all requests were successful
 assert all(reliefweb_raw.status_code == 200 for reliefweb_raw in reliefweb_raws)
@@ -280,7 +287,6 @@ rw_df["link"] = rw_df.apply(
     lambda x: x["reliefweb_link"] if x["origin_link"] == "" else x["origin_link"],
     axis=1,
 )
-
 
 
 # Note #1: In R, I removed certain text from summary, but not sure it's needed here mutate(Summary = gsub("\\*", "", Summary))
@@ -549,11 +555,13 @@ evidence_df = evidence_df.rename(
 
 
 
-
 # =============================================================================
 
 # 6.0. Preparing Data to be used as JSON
 # --------------------------------------
+
+# Export to excel
+evidence_df.to_excel('data.xlsx', index=False)
 
 records = evidence_df.to_dict(orient="records")
 
@@ -561,12 +569,12 @@ records = evidence_df.to_dict(orient="records")
 data = {"data": records}
 
 
-end_time = time.time()
-(end_time - start_time)/60
-
 # Dump dictionary to json file - only if we are working on that separate exported file
 with open("data.json", "w") as f:
     json.dump(data, f, default=str)
+
+end_time = time.time()
+(end_time - start_time)/60
 
 # evidence_dataset.to_json(path_or_buf="data3.json", orient='values')
 # evidence_dataset = evidence_dataset.to_json(orient='values')
