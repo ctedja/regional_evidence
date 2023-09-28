@@ -531,7 +531,9 @@ pub_df["thumb"] = pub_df["thumb"].fillna(
 evidence_df = rw_df.filter(["country", "title", "category", "date", "link", "thumb"])
 
 # Append pub_df onto evidence_df
-evidence_df = evidence_df.append(pub_df, ignore_index=True)
+# evidence_df = evidence_df.concat(pub_df, ignore_index=True)
+evidence_df = pd.concat([evidence_df, pub_df], ignore_index=True)
+
 
 # Drop duplicates
 evidence_df = evidence_df.drop_duplicates(subset=["link"], keep="first")
@@ -562,8 +564,9 @@ evidence_df = evidence_df.rename(
 # --------------------------------------
 
 # Export to excel
-evidence_df.to_excel('data.xlsx', index=False)
+# evidence_df.to_excel('data.xlsx', index=False)
 
+# Export to JSON
 records = evidence_df.to_dict(orient="records")
 
 # Create new dictionary with desired structure
