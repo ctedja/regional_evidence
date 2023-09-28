@@ -15,10 +15,6 @@ jobs:
         token: ${{ secrets.MY_GITHUB_TOKEN }}
         persist-credentials: true
 
-    - name: Pull latest changes
-      run: |
-        git pull origin main
-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -38,4 +34,5 @@ jobs:
         git config --local user.name "Clinton Tedja"
         git add data.json
         git commit -m "Update data.json output" || echo "No changes to commit"
+        git pull --rebase origin main
         git push "https://${{ secrets.MY_GITHUB_TOKEN }}@github.com/ctedja/test_pipeline.git" HEAD:main
