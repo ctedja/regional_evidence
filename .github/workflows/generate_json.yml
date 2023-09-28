@@ -2,7 +2,7 @@ name: Run app.py and Commit data.json
 
 on:
   schedule:
-      - cron: '57 * * * *' 
+      - cron: '15 * * * *' 
 
 jobs:
   build:
@@ -35,4 +35,4 @@ jobs:
         git add data.json
         git commit -m "Update data.json output" || echo "No changes to commit"
         git pull --rebase origin main
-        git push "https://${{ secrets.MY_GITHUB_TOKEN }}@github.com/ctedja/test_pipeline.git" HEAD:main
+        git push "https://${{ secrets.MY_GITHUB_TOKEN }}@github.com/ctedja/regional_evidence.git" HEAD:main
