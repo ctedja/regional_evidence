@@ -63,15 +63,42 @@ api_urls = [
 ]
 
 # Now load the APIs here. We have to build multiple because the limit for this API is 1,000. Include the session as a retry mechanism to ensure that we don't get blocked.
+
+# Maximum number of retries
+MAX_RETRIES = 10 
+
+# Delay in seconds before retrying
+DELAY = 5 
+
+# Now load the APIs here. We have to build multiple because the limit for this API is 1,000. Include the session as a retry mechanism to ensure that we don't get blocked.
 session = Session()
 reliefweb_raws = []
 for api_url in api_urls:
-    try:
-        response = requests.get(api_url)
-        reliefweb_raws.append(response)
-    except requests.exceptions.Timeout:
-        print(f"Timeout occurred for URL: {api_url}")
+    retries = 0
+    while retries < MAX_RETRIES:
+        try:
+            response = requests.get(api_url)
+            if response.status_code == 200:
+                reliefweb_raws.append(response)
+                print(f"Success on URL: {api_url}")
+                break  # Break the retry loop if the request is successful
+            else:
+                print(f"Failed on URL: {api_url} with status code: {response.status_code}. Retrying...")
+                retries += 1
+                time.sleep(DELAY)  # Wait for some time before retrying
 
+        except requests.exceptions.Timeout:
+            print(f"Timeout occurred for URL: {api_url}. Retrying...")
+            retries += 1
+            time.sleep(DELAY)
+
+        except Exception as e:
+            print(f"An unexpected error occurred for URL: {api_url}: {e}. Retrying...")
+            retries += 1
+            time.sleep(DELAY)
+
+    if retries == MAX_RETRIES:
+        print(f"Max retries reached for URL: {api_url}. Moving on to the next URL.")
 
 # Ensure that all requests were successful
 assert all(reliefweb_raw.status_code == 200 for reliefweb_raw in reliefweb_raws)
