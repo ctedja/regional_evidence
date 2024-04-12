@@ -65,10 +65,10 @@ api_urls = [
 # Now load the APIs here. We have to build multiple because the limit for this API is 1,000. Include the session as a retry mechanism to ensure that we don't get blocked.
 
 # Maximum number of retries
-MAX_RETRIES = 10 
+MAX_RETRIES = 10
 
 # Delay in seconds before retrying
-DELAY = 5 
+DELAY = 5
 
 # Now load the APIs here. We have to build multiple because the limit for this API is 1,000. Include the session as a retry mechanism to ensure that we don't get blocked.
 session = Session()
@@ -83,7 +83,9 @@ for api_url in api_urls:
                 print(f"Success on URL: {api_url}")
                 break  # Break the retry loop if the request is successful
             else:
-                print(f"Failed on URL: {api_url} with status code: {response.status_code}. Retrying...")
+                print(
+                    f"Failed on URL: {api_url} with status code: {response.status_code}. Retrying..."
+                )
                 retries += 1
                 time.sleep(DELAY)  # Wait for some time before retrying
 
@@ -220,7 +222,7 @@ rw_df["category"] = np.select(
         (rw_df["category"] == "Assessment"),
         (rw_df["category"] == "Analysis"),
         (rw_df["category"] == "News and Press Release"),
-        (rw_df["category"] == "Response Plans/Appeals")
+        (rw_df["category"] == "Response Plans/Appeals"),
     ],
     [
         # Where title contains certain words
@@ -306,7 +308,7 @@ rw_df["country"] = rw_df["country"].apply(
 
 # Remove any duplicates in the comma-separated column of countries
 rw_df["country"] = rw_df["country"].apply(
-    lambda x: ', '.join(sorted(set(country.strip() for country in x.split(','))))
+    lambda x: ", ".join(sorted(set(country.strip() for country in x.split(","))))
 )
 
 
@@ -328,11 +330,6 @@ rw_df["link"] = rw_df.apply(
 # evidence_dataset.info()
 
 
-
-
-
-
-
 # =============================================================================
 
 # 4.0 Scrape publications on wfp.org/publications
@@ -342,12 +339,16 @@ rw_df["link"] = rw_df.apply(
 max_page_num = 100
 documents = []
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+}
+
 for page_num in range(max_page_num):
     # Initialize an empty list to hold all documents data
 
     # Loop through each page number
-    # Send a GET request to the webpage
-    res = requests.get(f"https://www.wfp.org/publications?page={page_num}")
+    # Send a GET request to the webpage    
+    res = requests.get(f"https://www.wfp.org/publications?page={page_num}", headers=headers)
 
     # Parse the HTML content of the page with BeautifulSoup
     soup = BeautifulSoup(res.text, "html.parser")
@@ -384,6 +385,11 @@ for page_num in range(max_page_num):
 
         # Add this document's data to the list
         documents.append(doc)
+
+
+
+
+
 
 
 # Convert the list of dictionaries to a dataframe
@@ -509,6 +515,7 @@ def get_country_from_title(title):
     matches = [country for country in country_names if country.lower() in title.lower()]
     return ", ".join(matches) if matches else np.nan
 
+
 pub_df["country"] = pub_df.apply(
     lambda x: get_country_from_title(x["title"])
     if x["country"] == ""
@@ -519,8 +526,7 @@ pub_df["country"] = pub_df.apply(
 
 # Update the country names in certain cases as needed
 pub_df["country"] = pub_df.apply(
-    lambda x: 
-    "Asia-Pacific" if "asia" in x["title"].lower() else x["country"],
+    lambda x: "Asia-Pacific" if "asia" in x["title"].lower() else x["country"],
     axis=1,
 )
 
@@ -535,10 +541,8 @@ pub_df["country"] = pub_df["country"].apply(
 
 # Remove any duplicates in the comma-separated column of countries
 pub_df["country"] = pub_df["country"].apply(
-    lambda x: ', '.join(sorted(set(country.strip() for country in x.split(','))))
+    lambda x: ", ".join(sorted(set(country.strip() for country in x.split(","))))
 )
-
-
 
 
 # Format as date
@@ -582,8 +586,16 @@ evidence_df = evidence_df.rename(
     }
 )
 
-
-
+# Filter for the RAM products developed in a specific year
+ram_df = evidence_df[
+    ((evidence_df["Date"] < "2024-01-01") & (evidence_df["Date"] >= "2023-01-01"))
+    & (
+        (evidence_df["Category"] == "Assessments (Food Security and Nutrition)")
+        | (evidence_df["Category"] == "Market/Price Monitoring")
+        | (evidence_df["Category"] == "Analysis/Research")
+        | (evidence_df["Category"] == "Dashboards/Maps/Infographics")
+    )
+]
 
 # =============================================================================
 
@@ -605,7 +617,7 @@ with open("data.json", "w") as f:
     json.dump(data, f, default=str)
 
 end_time = time.time()
-(end_time - start_time)/60
+(end_time - start_time) / 60
 
 # evidence_dataset.to_json(path_or_buf="data3.json", orient='values')
 # evidence_dataset = evidence_dataset.to_json(orient='values')
